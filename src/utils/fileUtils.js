@@ -4,10 +4,13 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 const workspaceRoot = path.resolve(process.cwd());
 
 export function resolveSafeWorkspacePath(filePath) {
-  const resolvedPath = path.resolve(filePath);
-  const relativePath = path.relative(workspaceRoot, resolvedPath);
+  const resolvedPath = path.normalize(path.resolve(filePath));
+  const normalizedWorkspaceRoot = path.normalize(workspaceRoot);
+  const workspacePrefix = normalizedWorkspaceRoot.endsWith(path.sep)
+    ? normalizedWorkspaceRoot
+    : `${normalizedWorkspaceRoot}${path.sep}`;
 
-  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+  if (resolvedPath !== normalizedWorkspaceRoot && !resolvedPath.startsWith(workspacePrefix)) {
     throw new Error(`Refusing to access a path outside the workspace: ${resolvedPath}`);
   }
 

@@ -47,6 +47,7 @@ export function getAvailablePresets() {
 export function buildPrompt(input = {}) {
   const presetName = normalizeText(input.preset);
   const preset = presetName ? stylePresets[presetName] : undefined;
+  const normalizedNegative = normalizeList(input.negative);
 
   if (presetName && !preset) {
     throw new ValidationError(`Unknown preset "${presetName}". Choose one of: ${getAvailablePresets().join(', ')}.`);
@@ -64,7 +65,7 @@ export function buildPrompt(input = {}) {
     mood: normalizeText(input.mood),
     quality: normalizeText(input.quality || preset?.qualityHints),
     aspectRatio: normalizeText(input.aspectRatio),
-    negative: normalizeList(input.negative).length ? normalizeList(input.negative) : (preset?.recommendedNegativePrompts || defaultNegativePrompts),
+    negative: normalizedNegative.length ? normalizedNegative : (preset?.recommendedNegativePrompts || defaultNegativePrompts),
     extraDirectives: normalizeList(input.extraDirectives),
     preset: presetName || null,
   };
