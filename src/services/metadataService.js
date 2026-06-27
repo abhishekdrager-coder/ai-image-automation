@@ -1,8 +1,22 @@
 import path from 'node:path';
 import { config } from '../config.js';
+import { ValidationError } from '../errors.js';
 import { ensureDir, readJsonFile, writeJsonFile } from '../utils/fileUtils.js';
 
 const indexPath = path.join(config.output.metadataDir, 'index.json');
+const safeRunIdPattern = /^run_[A-Za-z0-9_]+$/;
+const safeArtifactNamePattern = /^[a-z0-9-]+$/;
+
+function assertSafeToken(value, pattern, label) {
+  if (!pattern.test(value)) {
+    throw new ValidationError(`Invalid ${label}.`);
+  }
+}
+
+function getMetadataPath(runId) {
+  assertSafeToken(runId, safeRunIdPattern, 'runId');
+  return path.join(config.output.metadataDir, `${runId}.json`);
+}
 
 function toIndexRecord(metadata) {
   return {
@@ -30,7 +44,7 @@ export async function ensureMetadataStorage() {
 
 export async function saveMetadataRecord(metadata) {
   await ensureMetadataStorage();
-  const metadataPath = path.join(config.output.metadataDir, `${metadata.runId}.json`);
+  const metadataPath = getMetadataPath(metadata.runId);
   await writeJsonFile(metadataPath, metadata);
 
   const index = await readJsonFile(indexPath, []);
@@ -42,6 +56,8 @@ export async function saveMetadataRecord(metadata) {
 
 export async function saveArtifact(runId, name, payload) {
   await ensureMetadataStorage();
+  assertSafeToken(runId, safeRunIdPattern, 'runId');
+  assertSafeToken(name, safeArtifactNamePattern, 'artifact name');
   const artifactPath = path.join(config.output.artifactDir, `${runId}-${name}.json`);
   await writeJsonFile(artifactPath, payload);
   return artifactPath;
@@ -53,6 +69,6 @@ export async function getHistory(limit = 20) {
 }
 
 export async function getRunById(runId) {
-  const metadataPath = path.join(config.output.metadataDir, `${runId}.json`);
+  const metadataPath = getMetadataPath(runId);
   return readJsonFile(metadataPath, null);
 }

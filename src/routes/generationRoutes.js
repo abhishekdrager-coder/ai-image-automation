@@ -44,6 +44,10 @@ const generationSchema = z.object({
   }
 });
 
+const runIdParamSchema = z.object({
+  runId: z.string().regex(/^run_[A-Za-z0-9_]+$/),
+});
+
 router.post('/create-image', validateRequest(generationSchema), async (req, res, next) => {
   try {
     const result = await createImageRun(req.validated.body);
@@ -76,11 +80,11 @@ router.get('/history', async (req, res, next) => {
   }
 });
 
-router.get('/history/:runId', async (req, res, next) => {
+router.get('/history/:runId', validateRequest(runIdParamSchema, 'params'), async (req, res, next) => {
   try {
-    const record = await getRunById(req.params.runId);
+    const record = await getRunById(req.validated.params.runId);
     if (!record) {
-      throw new ValidationError(`No run metadata found for ${req.params.runId}.`, {
+      throw new ValidationError(`No run metadata found for ${req.validated.params.runId}.`, {
         code: 'RUN_NOT_FOUND',
         statusCode: 404,
       });
