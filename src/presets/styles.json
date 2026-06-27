@@ -1,0 +1,98 @@
+{
+  "cinematic": {
+    "styleText": "cinematic storytelling, immersive detail, dramatic atmosphere",
+    "cameraHints": "wide establishing frame, subtle depth of field",
+    "lightingHints": "film-style lighting, balanced highlights and shadows",
+    "qualityHints": "high detail, polished color grading, production-ready finish",
+    "recommendedNegativePrompts": [
+      "blurry",
+      "low detail",
+      "distorted anatomy",
+      "text watermark"
+    ]
+  },
+  "product-shot": {
+    "styleText": "clean commercial product photography",
+    "cameraHints": "centered framing, studio macro emphasis",
+    "lightingHints": "softbox lighting, crisp reflections, clean shadow control",
+    "qualityHints": "sharp focus, catalog quality, premium finish",
+    "recommendedNegativePrompts": [
+      "cluttered background",
+      "warped edges",
+      "harsh glare",
+      "text overlay"
+    ]
+  },
+  "realistic-portrait": {
+    "styleText": "realistic portrait photography, natural skin tones",
+    "cameraHints": "85mm portrait feel, eye-level framing",
+    "lightingHints": "soft diffused portrait light",
+    "qualityHints": "natural detail, realistic texture, clean skin rendering",
+    "recommendedNegativePrompts": [
+      "uncanny face",
+      "extra limbs",
+      "plastic skin",
+      "blurred eyes"
+    ]
+  },
+  "fashion-editorial": {
+    "styleText": "fashion editorial, luxury magazine aesthetic",
+    "cameraHints": "dynamic editorial pose, runway-inspired framing",
+    "lightingHints": "high-fashion studio lighting, controlled contrast",
+    "qualityHints": "stylized polish, premium fabric detail, editorial sharpness",
+    "recommendedNegativePrompts": [
+      "awkward pose",
+      "garment distortion",
+      "dull colors",
+      "busy background"
+    ]
+  },
+  "anime": {
+    "styleText": "anime illustration, expressive linework, clean cel shading",
+    "cameraHints": "dramatic framing, energetic perspective",
+    "lightingHints": "stylized rim light, vivid highlights",
+    "qualityHints": "clean edges, vibrant palette, high clarity",
+    "recommendedNegativePrompts": [
+      "muddy colors",
+      "realistic skin texture",
+      "extra fingers",
+      "messy line art"
+    ]
+  },
+  "fantasy-concept-art": {
+    "styleText": "fantasy concept art, epic worldbuilding",
+    "cameraHints": "heroic composition, sweeping perspective",
+    "lightingHints": "volumetric light, magical glow, atmospheric depth",
+    "qualityHints": "rich detail, painterly finish, concept-art readability",
+    "recommendedNegativePrompts": [
+      "flat lighting",
+      "low detail",
+      "modern objects",
+      "text watermark"
+    ]
+  },
+  "architectural-visualization": {
+    "styleText": "architectural visualization, realistic materials, clean geometry",
+    "cameraHints": "ultra-wide architectural framing, straight vertical lines",
+    "lightingHints": "natural daylight, realistic interior bounce light",
+    "qualityHints": "photoreal surfaces, crisp edges, presentation-ready render",
+    "recommendedNegativePrompts": [
+      "warped perspective",
+      "people blocking view",
+      "noisy textures",
+      "clutter"
+    ]
+  },
+  "food-photography": {
+    "styleText": "food photography, appetizing commercial styling",
+    "cameraHints": "close-up composition, table-level framing",
+    "lightingHints": "soft directional window light, appetizing highlights",
+    "qualityHints": "rich texture detail, fresh appearance, cookbook polish",
+    "recommendedNegativePrompts": [
+      "burnt food",
+      "messy plating",
+      "plastic texture",
+      "muted colors"
+    ]
+  }
+}

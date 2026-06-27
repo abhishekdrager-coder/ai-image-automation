@@ -1,0 +1,30 @@
+{
+  "name": "ai-image-automation",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "postCreateCommand": "npm install",
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "AI Image Automation API",
+      "onAutoForward": "notify"
+    }
+  },
+  "remoteEnv": {
+    "WELCOME_MESSAGE": "Codespace ready: run npm run dev, then curl http://localhost:3000/health"
+  }
+}

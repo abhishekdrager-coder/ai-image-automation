@@ -1,0 +1,10 @@
+SUBJECT: {{subject}}
+SCENE: {{scene}}
+COMPOSITION: {{composition}}
+CAMERA/LENS: {{cameraLens}}
+LIGHTING: {{lighting}}
+COLOR/MOOD: {{colorMood}}
+STYLE: {{style}}
+QUALITY: {{quality}}
+EXTRA DIRECTIVES: {{extraDirectives}}
+NEGATIVE PROMPT: {{negativePrompt}}

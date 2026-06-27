@@ -1,0 +1,44 @@
+{
+  "name": "ai-image-automation",
+  "version": "1.0.0",
+  "description": "Beginner-friendly AI image automation with Freegen, Express, and GitHub Actions.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "test": "node --test",
+    "generate": "node scripts/generateOnce.js",
+    "generate:batch": "node scripts/batchGenerate.js",
+    "smoke": "bash scripts/smokeTest.sh",
+    "lint": "find src scripts tests -name \"*.js\" -print0 | xargs -0 -n1 node --check"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "ai",
+    "image-generation",
+    "express",
+    "codespaces",
+    "freegen"
+  ],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abhishekdrager-coder/ai-image-automation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abhishekdrager-coder/ai-image-automation/issues"
+  },
+  "homepage": "https://github.com/abhishekdrager-coder/ai-image-automation#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
