@@ -27,6 +27,7 @@ on:
         default: false
         type: boolean
   schedule:
+    # Runs daily at 9:00 AM UTC.
     - cron: '0 9 * * *'
 
 permissions:

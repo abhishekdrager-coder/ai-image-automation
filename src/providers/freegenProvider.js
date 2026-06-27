@@ -128,7 +128,19 @@ export class FreegenProvider {
 
       let binaryBuffer = null;
       if (remoteImageUrl) {
-        binaryBuffer = await downloadFile(remoteImageUrl, config.freegen.timeoutMs);
+        try {
+          binaryBuffer = await downloadFile(remoteImageUrl, config.freegen.timeoutMs);
+        } catch (error) {
+          throw new ProviderError('Failed to download image from remote URL provided by Freegen.', {
+            statusCode: 502,
+            details: {
+              provider: 'freegen',
+              requestId,
+              remoteImageUrl,
+            },
+            cause: error,
+          });
+        }
       } else if (base64Image) {
         binaryBuffer = Buffer.from(base64Image, 'base64');
       }

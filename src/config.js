@@ -19,7 +19,12 @@ const toBoolean = (value, fallback = true) => {
     return fallback;
   }
 
-  return ['true', '1', 'yes', 'on'].includes(String(value).toLowerCase());
+  const normalized = String(value).toLowerCase();
+  if (['false', '0', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  return ['true', '1', 'yes', 'on'].includes(normalized);
 };
 
 const resolvePath = (value) => path.resolve(process.cwd(), value);

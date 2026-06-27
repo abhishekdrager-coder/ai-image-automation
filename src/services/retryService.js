@@ -7,7 +7,7 @@ export async function withRetry(operation, options = {}) {
 
   while (true) {
     try {
-      return await operation(attempt + 1);
+      return await operation(attempt);
     } catch (error) {
       attempt += 1;
 

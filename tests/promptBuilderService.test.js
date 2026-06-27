@@ -20,3 +20,15 @@ test('buildPrompt applies preset defaults in deterministic order', () => {
 test('buildPrompt rejects missing required fields', () => {
   assert.throws(() => buildPrompt({ scene: 'empty studio' }), /subject and scene are required/i);
 });
+
+test('buildPrompt lets user negative prompts override preset defaults', () => {
+  const result = buildPrompt({
+    subject: 'portrait subject',
+    scene: 'soft studio backdrop',
+    preset: 'realistic-portrait',
+    negative: ['oversaturated', 'cartoon look'],
+  });
+
+  assert.deepEqual(result.promptBreakdown.negativePrompt, ['oversaturated', 'cartoon look']);
+  assert.match(result.finalPrompt, /Negative Prompt: oversaturated, cartoon look$/);
+});
