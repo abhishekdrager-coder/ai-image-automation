@@ -270,12 +270,8 @@
 
           <div class="script-model">
             <label for="scriptModel">Script Model</label>
-            <select id="scriptModel">
-              <option value="auto" selected>Auto (Claude or GPT)</option>
-              <option value="claude">Claude</option>
-              <option value="gpt">GPT</option>
-            </select>
-            <div class="field-help">Use Claude or GPT from your GitHub secrets or .env. The script is generated in the background and not shown here.</div>
+            <select id="scriptModel"></select>
+            <div id="scriptModelHelp" class="field-help">Select a model. Token estimate updates from duration.</div>
           </div>
 
           <div>
@@ -331,11 +327,61 @@
       const audienceListEl = document.getElementById('audienceList');
       const audienceEl = document.getElementById('audience');
       const scriptModelEl = document.getElementById('scriptModel');
+      const scriptModelHelpEl = document.getElementById('scriptModelHelp');
       const presetEl = document.getElementById('preset');
       const audioEl = document.getElementById('audio');
       const scriptBtn = document.getElementById('generateScriptBtn');
       const videoBtn = document.getElementById('generateVideoBtn');
       let generatedScriptText = '';
+
+      const scriptModelCatalog = [
+        { key: 'auto', provider: 'auto', model: '', label: 'Auto (best available Claude/GPT)' },
+
+        { key: 'claude-3-5-sonnet-latest', provider: 'anthropic', model: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet (latest)' },
+        { key: 'claude-3-5-haiku-latest', provider: 'anthropic', model: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku (latest)' },
+        { key: 'claude-3-opus-latest', provider: 'anthropic', model: 'claude-3-opus-latest', label: 'Claude 3 Opus (latest)' },
+        { key: 'claude-3-haiku-20240307', provider: 'anthropic', model: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku (20240307)' },
+
+        { key: 'gpt-4.1', provider: 'openai', model: 'gpt-4.1', label: 'GPT-4.1' },
+        { key: 'gpt-4.1-mini', provider: 'openai', model: 'gpt-4.1-mini', label: 'GPT-4.1 Mini' },
+        { key: 'gpt-4o', provider: 'openai', model: 'gpt-4o', label: 'GPT-4o' },
+        { key: 'gpt-4o-mini', provider: 'openai', model: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+        { key: 'gpt-4-turbo', provider: 'openai', model: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+        { key: 'gpt-3.5-turbo', provider: 'openai', model: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
+      ];
+
+      function estimateScriptTokens(durationSec) {
+        const safeDuration = Number.isFinite(durationSec) ? Math.max(20, durationSec) : 60;
+        const estimatedWords = (safeDuration / 60) * 150;
+        const outputTokens = Math.ceil(estimatedWords * 1.45);
+        const promptAndSystemTokens = 260;
+        const bufferTokens = 110;
+        return Math.ceil((promptAndSystemTokens + outputTokens + bufferTokens) / 10) * 10;
+      }
+
+      function renderScriptModelOptions() {
+        const currentValue = scriptModelEl.value || 'auto';
+        const estimatedTokens = estimateScriptTokens(Number(durationEl.value || 60));
+        scriptModelEl.innerHTML = '';
+
+        scriptModelCatalog.forEach((item) => {
+          const option = document.createElement('option');
+          option.value = item.key;
+          option.textContent = `${item.label} - ~${estimatedTokens} tokens`;
+          if (item.key === currentValue) {
+            option.selected = true;
+          }
+          scriptModelEl.appendChild(option);
+        });
+
+        scriptModelHelpEl.textContent = `Estimated script generation usage: ~${estimatedTokens} tokens based on selected duration.`;
+      }
+
+      function selectedScriptModelConfig() {
+        const selectedKey = scriptModelEl.value || 'auto';
+        return scriptModelCatalog.find((item) => item.key === selectedKey)
+          || scriptModelCatalog[0];
+      }
 
       const audienceOptions = [
         'Beginners learning the topic for the first time',
@@ -424,6 +470,7 @@
       }
 
       renderAudienceOptions();
+      renderScriptModelOptions();
 
       audienceSearchEl.addEventListener('input', () => {
         renderAudienceOptions(audienceSearchEl.value);
@@ -452,6 +499,10 @@
         }
       });
 
+      durationEl.addEventListener('input', () => {
+        renderScriptModelOptions();
+      });
+
       function setStatus(text) {
         statusEl.textContent = text;
       }
@@ -465,7 +516,7 @@
         const topic = topicEl.value.trim();
         const durationSec = Number(durationEl.value || 60);
         const audience = audienceEl.value.trim();
-        const scriptProvider = scriptModelEl.value;
+        const selectedModel = selectedScriptModelConfig();
 
         if (!topic) {
           setStatus('Please enter a topic first.');
@@ -484,7 +535,13 @@
           const response = await fetch('/api/studio/script', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ topic, durationSec, audience, scriptProvider }),
+            body: JSON.stringify({
+              topic,
+              durationSec,
+              audience,
+              scriptProvider: selectedModel.provider,
+              scriptModel: selectedModel.model,
+            }),
           });
 
           const payload = await response.json();
@@ -505,7 +562,7 @@
         const topic = topicEl.value.trim();
         const durationSec = Number(durationEl.value || 60);
         const audience = audienceEl.value.trim();
-        const scriptProvider = scriptModelEl.value;
+        const selectedModel = selectedScriptModelConfig();
         const preset = presetEl.value;
         const audioFile = audioEl.files && audioEl.files[0] ? audioEl.files[0] : null;
 
@@ -534,7 +591,8 @@
           form.append('topic', topic);
           form.append('durationSec', String(durationSec));
           form.append('audience', audience);
-          form.append('scriptProvider', scriptProvider);
+          form.append('scriptProvider', selectedModel.provider);
+          form.append('scriptModel', selectedModel.model);
           form.append('preset', preset);
           if (generatedScriptText) {
             form.append('scriptText', generatedScriptText);

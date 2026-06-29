@@ -113,6 +113,23 @@ function selectProvider(requestedProvider) {
   return 'auto';
 }
 
+function inferProviderFromModel(modelName) {
+  const normalized = toSentence(modelName).toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+
+  if (normalized.includes('claude')) {
+    return 'anthropic';
+  }
+
+  if (normalized.includes('gpt') || normalized.startsWith('o1') || normalized.startsWith('o3') || normalized.startsWith('o4')) {
+    return 'openai';
+  }
+
+  return null;
+}
+
 function selectModelName(provider, requestedModel) {
   const explicit = toSentence(requestedModel || '');
   if (explicit) {
@@ -123,6 +140,10 @@ function selectModelName(provider, requestedModel) {
 
 async function generateFromModel(input) {
   const providerChoice = selectProvider(input.provider);
+  const inferredProvider = inferProviderFromModel(input.model);
+  const finalProviderChoice = providerChoice === 'auto' && inferredProvider
+    ? inferredProvider
+    : providerChoice;
   const prompt = buildScriptPrompt(input);
 
   const tryAnthropic = async () => {
@@ -157,11 +178,11 @@ async function generateFromModel(input) {
     };
   };
 
-  if (providerChoice === 'anthropic') {
+  if (finalProviderChoice === 'anthropic') {
     return tryAnthropic();
   }
 
-  if (providerChoice === 'openai') {
+  if (finalProviderChoice === 'openai') {
     return tryOpenAI();
   }
 
