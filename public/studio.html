@@ -6,13 +6,13 @@
     <title>Video Automation Studio</title>
     <style>
       :root {
-        --bg: #f7f8f4;
+        --bg: #f8f9fa;
         --paper: #ffffff;
-        --ink: #1b1f23;
-        --sub: #4a5560;
-        --line: #d8ddd3;
-        --accent: #0f766e;
-        --accent-2: #115e59;
+        --ink: #202124;
+        --sub: #5f6368;
+        --line: #dadce0;
+        --accent: #1a73e8;
+        --accent-2: #1558b0;
       }
 
       * { box-sizing: border-box; }
@@ -35,10 +35,10 @@
 
       .card {
         background: var(--paper);
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 18px;
-        box-shadow: 0 12px 24px rgba(17, 24, 39, 0.06);
+        border: 1px solid #eef0f2;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 30px rgba(60, 64, 67, 0.12);
       }
 
       h1 {
@@ -69,10 +69,19 @@
       select {
         width: 100%;
         border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 10px 12px;
+        border-radius: 12px;
+        padding: 11px 13px;
         font-size: 14px;
         background: #fff;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus,
+      button:focus {
+        outline: none;
+        border-color: rgba(26, 115, 232, 0.55);
+        box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.12);
       }
 
       textarea {
@@ -90,7 +99,7 @@
 
       button {
         border: 0;
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 10px 14px;
         font-size: 14px;
         font-weight: 700;
@@ -147,13 +156,14 @@
       .combo-button {
         width: 100%;
         border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 10px 12px;
+        border-radius: 999px;
+        padding: 12px 16px;
         background: #fff;
         text-align: left;
         color: var(--ink);
         font-size: 14px;
         cursor: pointer;
+        box-shadow: 0 1px 2px rgba(60, 64, 67, 0.08);
       }
 
       .combo-panel {
@@ -164,9 +174,9 @@
         right: 0;
         background: #fff;
         border: 1px solid var(--line);
-        border-radius: 12px;
-        box-shadow: 0 16px 30px rgba(17, 24, 39, 0.12);
-        padding: 10px;
+        border-radius: 20px;
+        box-shadow: 0 16px 40px rgba(60, 64, 67, 0.18);
+        padding: 12px;
         display: none;
       }
 
@@ -176,20 +186,23 @@
 
       .combo-search {
         width: 100%;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
+        border-radius: 999px;
+        border-color: #dfe1e5;
+        padding: 12px 16px;
       }
 
       .combo-meta {
         font-size: 12px;
         color: var(--sub);
-        margin: 6px 0 8px;
+        margin: 4px 0 10px;
       }
 
       .combo-list {
-        max-height: 260px;
+        max-height: 300px;
         overflow: auto;
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border: 1px solid #eceff1;
+        border-radius: 16px;
       }
 
       .combo-option {
@@ -209,7 +222,7 @@
 
       .combo-option:hover,
       .combo-option.selected {
-        background: #effcf8;
+        background: #e8f0fe;
       }
 
       @media (max-width: 820px) {
@@ -239,15 +252,15 @@
           <div class="full">
             <label for="audience">Target Audience</label>
             <div class="combo" id="audienceCombo">
-              <button type="button" id="audienceButton" class="combo-button">Choose who this video is for</button>
+              <button type="button" id="audienceButton" class="combo-button">Search target audience</button>
               <div id="audiencePanel" class="combo-panel" aria-hidden="true">
-                <input id="audienceSearch" class="combo-search" placeholder="Type at least 5 letters to search..." />
+                <input id="audienceSearch" class="combo-search" placeholder="Search audiences..." />
                 <div id="audienceMeta" class="combo-meta"></div>
                 <div id="audienceList" class="combo-list"></div>
               </div>
               <input id="audience" type="hidden" />
             </div>
-            <div class="field-help">The search lives inside the dropdown. Type 5 letters before it starts narrowing results.</div>
+            <div class="field-help">Click to open all audiences. Type in the search box to filter immediately.</div>
           </div>
 
           <div>
@@ -365,14 +378,13 @@
       function renderAudienceOptions(filterText = '') {
         const currentValue = audienceEl.value;
         const rawQuery = filterText.trim().toLowerCase();
-        const shouldFilter = rawQuery.length >= 5;
-        const matches = shouldFilter
+        const matches = rawQuery
           ? audienceOptions.filter((option) => option.toLowerCase().includes(rawQuery))
           : audienceOptions;
 
-        audienceMetaEl.textContent = shouldFilter
+        audienceMetaEl.textContent = rawQuery
           ? `Showing ${matches.length} of ${audienceOptions.length} options for “${filterText.trim()}”.`
-          : `Type 5 letters to search. Showing all ${audienceOptions.length} options.`;
+          : `Showing all ${audienceOptions.length} options. Type to narrow the list.`;
 
         audienceListEl.innerHTML = '';
 
@@ -412,6 +424,8 @@
           return;
         }
 
+        audienceSearchEl.value = audienceSearchEl.value || '';
+        renderAudienceOptions(audienceSearchEl.value);
         openAudiencePanel();
       });
 
