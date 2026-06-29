@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Automation Studio</title>
+    <style>
+      :root {
+        --bg: #f7f8f4;
+        --paper: #ffffff;
+        --ink: #1b1f23;
+        --sub: #4a5560;
+        --line: #d8ddd3;
+        --accent: #0f766e;
+        --accent-2: #115e59;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(800px 500px at 15% -10%, #d2efe9 0%, transparent 60%),
+          radial-gradient(700px 450px at 95% 0%, #f5ebd5 0%, transparent 60%),
+          var(--bg);
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 32px auto;
+        padding: 0 16px 40px;
+      }
+
+      .card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px;
+        box-shadow: 0 12px 24px rgba(17, 24, 39, 0.06);
+      }
+
+      h1 {
+        margin: 4px 0 12px;
+        font-size: 28px;
+      }
+
+      p.sub {
+        margin-top: 0;
+        color: var(--sub);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 14px;
+        background: #fff;
+      }
+
+      textarea {
+        min-height: 220px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        background: var(--accent);
+        cursor: pointer;
+      }
+
+      button:hover { background: var(--accent-2); }
+      button[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+      .muted-btn {
+        background: #374151;
+      }
+
+      .status {
+        margin-top: 14px;
+        border: 1px dashed var(--line);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 13px;
+        color: var(--sub);
+        white-space: pre-wrap;
+      }
+
+      .result {
+        margin-top: 14px;
+        padding: 12px;
+        border-radius: 10px;
+        background: #eefcf8;
+        border: 1px solid #b8e4dc;
+      }
+
+      .result a {
+        color: #0b5f59;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      @media (max-width: 820px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>Video Automation Studio</h1>
+        <p class="sub">Generate script, upload your voice audio, and produce a complete video from one screen.</p>
+
+        <div class="grid">
+          <div>
+            <label for="topic">Video Topic</label>
+            <input id="topic" placeholder="Example: How to automate shorts with AI" />
+          </div>
+
+          <div>
+            <label for="durationSec">Duration (seconds)</label>
+            <input id="durationSec" type="number" value="60" min="20" max="300" />
+          </div>
+
+          <div>
+            <label for="preset">Image Preset</label>
+            <select id="preset">
+              <option value="cinematic">cinematic</option>
+              <option value="anime">anime</option>
+              <option value="product-shot">product-shot</option>
+              <option value="food-photography">food-photography</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="audio">Upload Audio (mp3/wav/m4a)</label>
+            <input id="audio" type="file" accept="audio/*" />
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <label for="visualStyle">Visual Style Hint</label>
+          <input id="visualStyle" value="high-detail cinematic realism, dramatic light, story-focused composition" />
+        </div>
+
+        <div style="margin-top:12px;">
+          <label for="scriptText">Script (auto-filled when you click Generate Script)</label>
+          <textarea id="scriptText" placeholder="Click Generate Script first, then edit if needed."></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="generateScriptBtn" class="muted-btn">Generate Script</button>
+          <button id="generateVideoBtn">Generate Full Video</button>
+        </div>
+
+        <div id="status" class="status">Ready.</div>
+        <div id="result" class="result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <script>
+      const statusEl = document.getElementById('status');
+      const resultEl = document.getElementById('result');
+      const scriptTextEl = document.getElementById('scriptText');
+      const topicEl = document.getElementById('topic');
+      const durationEl = document.getElementById('durationSec');
+      const presetEl = document.getElementById('preset');
+      const visualStyleEl = document.getElementById('visualStyle');
+      const audioEl = document.getElementById('audio');
+      const scriptBtn = document.getElementById('generateScriptBtn');
+      const videoBtn = document.getElementById('generateVideoBtn');
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function setButtonsDisabled(disabled) {
+        scriptBtn.disabled = disabled;
+        videoBtn.disabled = disabled;
+      }
+
+      scriptBtn.addEventListener('click', async () => {
+        const topic = topicEl.value.trim();
+        const durationSec = Number(durationEl.value || 60);
+
+        if (!topic) {
+          setStatus('Please enter a topic first.');
+          return;
+        }
+
+        try {
+          setButtonsDisabled(true);
+          setStatus('Generating script...');
+
+          const response = await fetch('/api/studio/script', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ topic, durationSec }),
+          });
+
+          const payload = await response.json();
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error?.message || 'Script generation failed.');
+          }
+
+          scriptTextEl.value = payload.data.scriptText || '';
+          setStatus('Script generated. Review/edit it, then upload audio and click Generate Full Video.');
+        } catch (error) {
+          setStatus(`Error: ${error.message}`);
+        } finally {
+          setButtonsDisabled(false);
+        }
+      });
+
+      videoBtn.addEventListener('click', async () => {
+        const topic = topicEl.value.trim();
+        const durationSec = Number(durationEl.value || 60);
+        const preset = presetEl.value;
+        const visualStyle = visualStyleEl.value.trim();
+        const scriptText = scriptTextEl.value.trim();
+        const audioFile = audioEl.files && audioEl.files[0] ? audioEl.files[0] : null;
+
+        if (!topic) {
+          setStatus('Please enter a topic first.');
+          return;
+        }
+
+        if (!audioFile) {
+          setStatus('Please upload your audio file before generating the full video.');
+          return;
+        }
+
+        try {
+          setButtonsDisabled(true);
+          setStatus('Generating full video. This can take some time...');
+          resultEl.style.display = 'none';
+          resultEl.innerHTML = '';
+
+          const form = new FormData();
+          form.append('topic', topic);
+          form.append('durationSec', String(durationSec));
+          form.append('preset', preset);
+          form.append('visualStyle', visualStyle);
+          form.append('scriptText', scriptText);
+          form.append('audio', audioFile);
+
+          const response = await fetch('/api/studio/generate', {
+            method: 'POST',
+            body: form,
+          });
+
+          const payload = await response.json();
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error?.message || 'Video generation failed.');
+          }
+
+          const data = payload.data;
+          const lines = [];
+          lines.push(`<div><strong>Run ID:</strong> ${data.runId}</div>`);
+
+          if (data.videoUrl) {
+            lines.push(`<div><a href="${data.videoUrl}" target="_blank">Open Generated Video</a></div>`);
+          } else {
+            lines.push('<div>No video URL returned. Check server logs and summary file.</div>');
+          }
+
+          if (data.summaryUrl) {
+            lines.push(`<div><a href="${data.summaryUrl}" target="_blank">Open Run Summary JSON</a></div>`);
+          }
+
+          resultEl.innerHTML = lines.join('');
+          resultEl.style.display = 'block';
+          setStatus('Done. Your video has been generated.');
+        } catch (error) {
+          setStatus(`Error: ${error.message}\n\nTip: if you see ffmpeg error, install ffmpeg/ffprobe and try again.`);
+        } finally {
+          setButtonsDisabled(false);
+        }
+      });
+    </script>
+  </body>
+</html>
