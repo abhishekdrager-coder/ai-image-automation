@@ -140,6 +140,78 @@
         color: var(--sub);
       }
 
+      .combo {
+        position: relative;
+      }
+
+      .combo-button {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #fff;
+        text-align: left;
+        color: var(--ink);
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .combo-panel {
+        position: absolute;
+        z-index: 5;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        box-shadow: 0 16px 30px rgba(17, 24, 39, 0.12);
+        padding: 10px;
+        display: none;
+      }
+
+      .combo-panel.open {
+        display: block;
+      }
+
+      .combo-search {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      .combo-meta {
+        font-size: 12px;
+        color: var(--sub);
+        margin: 6px 0 8px;
+      }
+
+      .combo-list {
+        max-height: 260px;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+
+      .combo-option {
+        width: 100%;
+        border: 0;
+        border-bottom: 1px solid #edf0ea;
+        background: #fff;
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .combo-option:last-child {
+        border-bottom: 0;
+      }
+
+      .combo-option:hover,
+      .combo-option.selected {
+        background: #effcf8;
+      }
+
       @media (max-width: 820px) {
         .grid {
           grid-template-columns: 1fr;
@@ -166,10 +238,16 @@
 
           <div class="full">
             <label for="audience">Target Audience</label>
-            <input id="audienceSearch" placeholder="Search audience options..." />
-            <select id="audience">
-            </select>
-            <div class="field-help">Type in the search box to filter audience options, then select one.</div>
+            <div class="combo" id="audienceCombo">
+              <button type="button" id="audienceButton" class="combo-button">Choose who this video is for</button>
+              <div id="audiencePanel" class="combo-panel" aria-hidden="true">
+                <input id="audienceSearch" class="combo-search" placeholder="Type at least 5 letters to search..." />
+                <div id="audienceMeta" class="combo-meta"></div>
+                <div id="audienceList" class="combo-list"></div>
+              </div>
+              <input id="audience" type="hidden" />
+            </div>
+            <div class="field-help">The search lives inside the dropdown. Type 5 letters before it starts narrowing results.</div>
           </div>
 
           <div>
@@ -224,7 +302,11 @@
       const scriptTextEl = document.getElementById('scriptText');
       const topicEl = document.getElementById('topic');
       const durationEl = document.getElementById('durationSec');
+      const audienceButtonEl = document.getElementById('audienceButton');
+      const audiencePanelEl = document.getElementById('audiencePanel');
       const audienceSearchEl = document.getElementById('audienceSearch');
+      const audienceMetaEl = document.getElementById('audienceMeta');
+      const audienceListEl = document.getElementById('audienceList');
       const audienceEl = document.getElementById('audience');
       const presetEl = document.getElementById('preset');
       const audioEl = document.getElementById('audio');
@@ -269,41 +351,80 @@
         'Creator economy followers'
       ];
 
+      function closeAudiencePanel() {
+        audiencePanelEl.classList.remove('open');
+        audiencePanelEl.setAttribute('aria-hidden', 'true');
+      }
+
+      function openAudiencePanel() {
+        audiencePanelEl.classList.add('open');
+        audiencePanelEl.setAttribute('aria-hidden', 'false');
+        audienceSearchEl.focus();
+      }
+
       function renderAudienceOptions(filterText = '') {
-        const query = filterText.trim().toLowerCase();
         const currentValue = audienceEl.value;
-        const matches = audienceOptions.filter((option) => option.toLowerCase().includes(query));
+        const rawQuery = filterText.trim().toLowerCase();
+        const shouldFilter = rawQuery.length >= 5;
+        const matches = shouldFilter
+          ? audienceOptions.filter((option) => option.toLowerCase().includes(rawQuery))
+          : audienceOptions;
 
-        audienceEl.innerHTML = '';
+        audienceMetaEl.textContent = shouldFilter
+          ? `Showing ${matches.length} of ${audienceOptions.length} options for “${filterText.trim()}”.`
+          : `Type 5 letters to search. Showing all ${audienceOptions.length} options.`;
 
-        const placeholder = document.createElement('option');
-        placeholder.value = '';
-        placeholder.disabled = true;
-        placeholder.textContent = matches.length ? 'Choose who this video is for' : 'No matches found';
-        if (!currentValue) {
-          placeholder.selected = true;
+        audienceListEl.innerHTML = '';
+
+        if (matches.length === 0) {
+          const empty = document.createElement('div');
+          empty.style.padding = '10px 12px';
+          empty.textContent = 'No matching audiences found.';
+          audienceListEl.appendChild(empty);
+          return;
         }
-        audienceEl.appendChild(placeholder);
 
         matches.forEach((option) => {
-          const item = document.createElement('option');
-          item.value = option;
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = `combo-option${option === currentValue ? ' selected' : ''}`;
           item.textContent = option;
-          if (option === currentValue) {
-            item.selected = true;
-          }
-          audienceEl.appendChild(item);
+          item.addEventListener('click', () => {
+            audienceEl.value = option;
+            audienceButtonEl.textContent = option;
+            audienceSearchEl.value = option;
+            renderAudienceOptions(audienceSearchEl.value);
+            closeAudiencePanel();
+          });
+          audienceListEl.appendChild(item);
         });
-
-        if (currentValue && !matches.includes(currentValue)) {
-          audienceEl.value = '';
-        }
       }
 
       renderAudienceOptions();
 
       audienceSearchEl.addEventListener('input', () => {
         renderAudienceOptions(audienceSearchEl.value);
+      });
+
+      audienceButtonEl.addEventListener('click', () => {
+        if (audiencePanelEl.classList.contains('open')) {
+          closeAudiencePanel();
+          return;
+        }
+
+        openAudiencePanel();
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!document.getElementById('audienceCombo').contains(event.target)) {
+          closeAudiencePanel();
+        }
+      });
+
+      audienceSearchEl.addEventListener('focus', () => {
+        if (!audiencePanelEl.classList.contains('open')) {
+          openAudiencePanel();
+        }
       });
 
       function setStatus(text) {
