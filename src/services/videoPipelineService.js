@@ -9,6 +9,13 @@ import { publishVideo } from './socialPublishService.js';
 import { ensureDir, slugify, writeJsonFile } from '../utils/fileUtils.js';
 import { getCompactTimestamp, getIsoTimestamp } from '../utils/timeUtils.js';
 
+const PLACEHOLDER_PNG_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/aRsAAAAASUVORK5CYII=';
+
+async function ensureFallbackImage(imagePath) {
+  const buffer = Buffer.from(PLACEHOLDER_PNG_BASE64, 'base64');
+  await writeFile(imagePath, buffer);
+}
+
 function toSafeSentence(value) {
   return String(value || '')
     .replace(/\s+/g, ' ')
@@ -79,6 +86,13 @@ async function generateImagesForSegments({ topic, segments, outputImageDir, visu
       );
       await copyFile(imagePath, renamed);
       imagePath = renamed;
+    } else {
+      const fallbackPath = path.join(
+        outputImageDir,
+        `${String(segment.id).padStart(3, '0')}_${formatTime(segment.startSec)}_${slugify(topic)}.png`,
+      );
+      await ensureFallbackImage(fallbackPath);
+      imagePath = fallbackPath;
     }
 
     results.push({

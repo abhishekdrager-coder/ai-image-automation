@@ -94,5 +94,77 @@
       "plastic texture",
       "muted colors"
     ]
+  },
+  "neon-noir": {
+    "styleText": "neon noir, moody cyberpunk atmosphere, reflective surfaces",
+    "cameraHints": "cinematic street-level framing, dramatic perspective",
+    "lightingHints": "neon signage, rainy reflections, high-contrast glow",
+    "qualityHints": "moody detail, crisp highlights, cinematic depth",
+    "recommendedNegativePrompts": [
+      "flat lighting",
+      "washed out colors",
+      "blurry edges",
+      "text watermark"
+    ]
+  },
+  "watercolor-illustration": {
+    "styleText": "watercolor illustration, soft washes, hand-painted texture",
+    "cameraHints": "gentle composition, artistic balance",
+    "lightingHints": "diffused soft light, luminous paper texture",
+    "qualityHints": "fluid brush detail, delicate gradients, gallery finish",
+    "recommendedNegativePrompts": [
+      "harsh edges",
+      "pixel noise",
+      "overly sharp detail",
+      "text overlay"
+    ]
+  },
+  "minimalist-line-art": {
+    "styleText": "minimalist line art, clean outlines, modern simplicity",
+    "cameraHints": "simple centered framing, lots of negative space",
+    "lightingHints": "soft even lighting, uncluttered presentation",
+    "qualityHints": "crisp line work, elegant simplicity, design-forward",
+    "recommendedNegativePrompts": [
+      "busy background",
+      "heavy shading",
+      "messy sketch lines",
+      "clutter"
+    ]
+  },
+  "3d-render": {
+    "styleText": "high-end 3D render, polished surfaces, studio presentation",
+    "cameraHints": "clean product-style angle, depth-focused framing",
+    "lightingHints": "studio key light, realistic reflections, soft shadows",
+    "qualityHints": "ray-traced detail, premium finish, accurate materials",
+    "recommendedNegativePrompts": [
+      "low poly artifacts",
+      "blurry render",
+      "ugly seams",
+      "flat shading"
+    ]
+  },
+  "vintage-film": {
+    "styleText": "vintage film still, nostalgic grain, analog character",
+    "cameraHints": "classic framing, slight composition asymmetry",
+    "lightingHints": "warm practical light, soft contrast, film grain",
+    "qualityHints": "cinematic nostalgia, subtle grain, analog texture",
+    "recommendedNegativePrompts": [
+      "modern digital look",
+      "oversharpened edges",
+      "plastic texture",
+      "text watermark"
+    ]
+  },
+  "stickman-handmade": {
+    "styleText": "handmade stickman sketch, childlike doodle, marker-and-paper feel",
+    "cameraHints": "simple hand-drawn framing, playful composition",
+    "lightingHints": "flat notebook lighting, scanned sketch aesthetic",
+    "qualityHints": "visible pencil texture, rough handmade charm, clean doodle clarity",
+    "recommendedNegativePrompts": [
+      "realistic anatomy",
+      "photo detail",
+      "complex background",
+      "digital polish"
+    ]
   }
 }

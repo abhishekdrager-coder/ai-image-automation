@@ -2,6 +2,7 @@ import path from 'node:path';
 import { Router } from 'express';
 import multer from 'multer';
 import { ValidationError } from '../errors.js';
+import { config } from '../config.js';
 import { ensureDir } from '../utils/fileUtils.js';
 import { generateNarrationScript } from '../services/scriptGenerationService.js';
 import { runVideoPipeline } from '../services/videoPipelineService.js';
@@ -76,6 +77,9 @@ router.post('/api/studio/generate', upload.single('audio'), async (req, res, nex
     }
 
     const durationSec = Number(req.body?.durationSec || 60);
+    const freegenConfigured = Boolean(config.freegen.apiUrl)
+      && !String(config.freegen.apiUrl).includes('api.example.com');
+
     const result = await runVideoPipeline({
       topic,
       durationSec: Number.isFinite(durationSec) ? durationSec : 60,
@@ -84,6 +88,7 @@ router.post('/api/studio/generate', upload.single('audio'), async (req, res, nex
       scriptText: req.body?.scriptText || undefined,
       audioPath: req.file?.path || undefined,
       transcriptPath: req.body?.transcriptPath || undefined,
+      dryRunImages: !freegenConfigured,
       publish: false,
     });
 
