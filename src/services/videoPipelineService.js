@@ -38,37 +38,87 @@ function getSegmentDuration(segment) {
   return 4;
 }
 
-function segmentToImagePrompt({ topic, segment, visualStyle, preset }) {
-  const narration = toSafeSentence(segment.text);
-  const style = toSafeSentence(visualStyle || 'cinematic realism, rich detail, storytelling frame');
-  const locationHint = toSafeSentence(segment.locationHint || 'contextual background matching narration');
-  const subject = toSafeSentence(topic || 'story scene');
+function buildVisualBible({ topic, audience, preset, totalSegments }) {
+  const safeTopic = toSafeSentence(topic || 'the story');
+  const safeAudience = toSafeSentence(audience || 'the intended audience');
+  const safePreset = toSafeSentence(preset || 'cinematic');
 
   return {
-    subject,
-    scene: `${narration}. ${locationHint}`,
-    style,
-    preset,
-    quality: 'high detail, clean composition, no text overlay, no watermark',
+    subject: `A single connected visual story about ${safeTopic}`,
+    scene: `Every frame belongs to the same world and should visually evolve without changing the core identity.`,
+    composition: `Maintain a stable visual language across ${totalSegments} frames with consistent framing, subject scale, and spatial logic.`,
+    camera: `Keep the same general camera family throughout the sequence with only subtle changes in angle or distance when the story needs emphasis.`,
+    lighting: `Preserve the same lighting mood, contrast level, and color temperature across every image.`,
+    color: `Use one coherent palette that matches ${safeAudience} and stays recognizable from frame to frame.`,
+    style: `Apply the ${safePreset} preset consistently so the series looks like one intentional visual set, not separate unrelated images.`,
+    quality: `Highly detailed storyboard frame, consistent subject identity, consistent wardrobe and environment logic, strong continuity, no random style drift.`,
+    extraDirectives: [
+      `Continuity rule: keep the same main subject, same visual identity, same palette, and same art direction across every image.`,
+      `Do not introduce random new characters, random props, sudden outfit changes, or abrupt environment changes unless the story explicitly requires it.`,
+      `Each image should feel like the next panel in a connected storyboard and should visually correlate with the previous and next frames.`,
+      `Audience focus: ${safeAudience}.`,
+      `Overall project focus: ${safeTopic}.`,
+    ],
     negative: [
-      'text overlay',
-      'caption',
-      'watermark',
-      'blurry',
-      'distorted face',
+      'inconsistent style',
+      'random characters',
+      'sudden wardrobe change',
+      'mismatched lighting',
+      'different art direction',
+      'visual drift',
+      'unrelated scene',
+      'incoherent framing',
     ],
   };
 }
 
-async function generateImagesForSegments({ topic, segments, outputImageDir, visualStyle, preset, dryRunImages }) {
-  const results = [];
+function segmentToImagePrompt({ topic, audience, segment, preset, bible, previousSegment, nextSegment, index, totalSegments }) {
+  const narration = toSafeSentence(segment.text);
+  const locationHint = toSafeSentence(segment.locationHint || 'the same visual world as the rest of the sequence');
+  const beatRole = index === 0
+    ? 'Establish the world clearly.'
+    : index === totalSegments - 1
+      ? 'Resolve the visual story while keeping the same identity.'
+      : 'Advance the story while preserving continuity with surrounding frames.';
 
-  for (const segment of segments) {
+  const continuityNotes = [
+    `Current beat: ${narration}`,
+    previousSegment ? `Previous beat for continuity: ${toSafeSentence(previousSegment.text)}` : 'This is the opening frame, so establish the shared world and visual identity clearly.',
+    nextSegment ? `Next beat for continuity: ${toSafeSentence(nextSegment.text)}` : 'This is the closing frame, so keep the final image visually tied to the shared story world.',
+    `This frame must fit the same story bible as the rest of the sequence and must not feel like a different project.`,
+    `Frame role: ${beatRole}`,
+  ];
+
+  return {
+    subject: bible.subject,
+    scene: `${narration}. ${locationHint}`,
+    composition: bible.composition,
+    camera: bible.camera,
+    lighting: bible.lighting,
+    color: bible.color,
+    style: bible.style,
+    quality: bible.quality,
+    extraDirectives: [...bible.extraDirectives, ...continuityNotes],
+    preset,
+    negative: bible.negative,
+  };
+}
+
+async function generateImagesForSegments({ topic, audience, segments, outputImageDir, preset, dryRunImages }) {
+  const results = [];
+  const bible = buildVisualBible({ topic, audience, preset, totalSegments: segments.length });
+
+  for (const [index, segment] of segments.entries()) {
     const promptPayload = segmentToImagePrompt({
       topic,
+      audience,
       segment,
-      visualStyle,
       preset,
+      bible,
+      previousSegment: segments[index - 1] || null,
+      nextSegment: segments[index + 1] || null,
+      index,
+      totalSegments: segments.length,
     });
 
     const generation = await createImageRun({
@@ -175,9 +225,9 @@ export async function runVideoPipeline(input = {}) {
 
   const imageTimeline = await generateImagesForSegments({
     topic,
+    audience: input.audience,
     segments: transcript.segments,
     outputImageDir: imageDir,
-    visualStyle: input.visualStyle,
     preset: input.preset,
     dryRunImages: input.dryRunImages,
   });

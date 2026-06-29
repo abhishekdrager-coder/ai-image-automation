@@ -198,13 +198,9 @@
           </div>
         </div>
 
-        <div style="margin-top:12px;">
-          <label for="visualStyle">Visual Style Hint</label>
-          <input id="visualStyle" value="high-detail cinematic realism, dramatic light, story-focused composition" />
-        </div>
-
         <p class="sub" style="margin-top:10px;">
           New presets include neon-noir, watercolor-illustration, minimalist-line-art, 3d-render, vintage-film, and stickman-handmade.
+          Image prompts now use a shared visual bible automatically so all frames stay consistent.
         </p>
 
         <div style="margin-top:12px;">
@@ -231,7 +227,6 @@
       const audienceSearchEl = document.getElementById('audienceSearch');
       const audienceEl = document.getElementById('audience');
       const presetEl = document.getElementById('preset');
-      const visualStyleEl = document.getElementById('visualStyle');
       const audioEl = document.getElementById('audio');
       const scriptBtn = document.getElementById('generateScriptBtn');
       const videoBtn = document.getElementById('generateVideoBtn');
@@ -364,7 +359,6 @@
         const durationSec = Number(durationEl.value || 60);
         const audience = audienceEl.value.trim();
         const preset = presetEl.value;
-        const visualStyle = visualStyleEl.value.trim();
         const scriptText = scriptTextEl.value.trim();
         const audioFile = audioEl.files && audioEl.files[0] ? audioEl.files[0] : null;
 
@@ -394,7 +388,6 @@
           form.append('durationSec', String(durationSec));
           form.append('audience', audience);
           form.append('preset', preset);
-          form.append('visualStyle', visualStyle);
           form.append('scriptText', scriptText);
           form.append('audio', audioFile);
 
