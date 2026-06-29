@@ -1,0 +1,170 @@
+{
+  "cinematic": {
+    "styleText": "cinematic storytelling, immersive detail, dramatic atmosphere",
+    "cameraHints": "wide establishing frame, subtle depth of field",
+    "lightingHints": "film-style lighting, balanced highlights and shadows",
+    "qualityHints": "high detail, polished color grading, production-ready finish",
+    "recommendedNegativePrompts": [
+      "blurry",
+      "low detail",
+      "distorted anatomy",
+      "text watermark"
+    ]
+  },
+  "product-shot": {
+    "styleText": "clean commercial product photography",
+    "cameraHints": "centered framing, studio macro emphasis",
+    "lightingHints": "softbox lighting, crisp reflections, clean shadow control",
+    "qualityHints": "sharp focus, catalog quality, premium finish",
+    "recommendedNegativePrompts": [
+      "cluttered background",
+      "warped edges",
+      "harsh glare",
+      "text overlay"
+    ]
+  },
+  "realistic-portrait": {
+    "styleText": "realistic portrait photography, natural skin tones",
+    "cameraHints": "85mm portrait feel, eye-level framing",
+    "lightingHints": "soft diffused portrait light",
+    "qualityHints": "natural detail, realistic texture, clean skin rendering",
+    "recommendedNegativePrompts": [
+      "uncanny face",
+      "extra limbs",
+      "plastic skin",
+      "blurred eyes"
+    ]
+  },
+  "fashion-editorial": {
+    "styleText": "fashion editorial, luxury magazine aesthetic",
+    "cameraHints": "dynamic editorial pose, runway-inspired framing",
+    "lightingHints": "high-fashion studio lighting, controlled contrast",
+    "qualityHints": "stylized polish, premium fabric detail, editorial sharpness",
+    "recommendedNegativePrompts": [
+      "awkward pose",
+      "garment distortion",
+      "dull colors",
+      "busy background"
+    ]
+  },
+  "anime": {
+    "styleText": "anime illustration, expressive linework, clean cel shading",
+    "cameraHints": "dramatic framing, energetic perspective",
+    "lightingHints": "stylized rim light, vivid highlights",
+    "qualityHints": "clean edges, vibrant palette, high clarity",
+    "recommendedNegativePrompts": [
+      "muddy colors",
+      "realistic skin texture",
+      "extra fingers",
+      "messy line art"
+    ]
+  },
+  "fantasy-concept-art": {
+    "styleText": "fantasy concept art, epic worldbuilding",
+    "cameraHints": "heroic composition, sweeping perspective",
+    "lightingHints": "volumetric light, magical glow, atmospheric depth",
+    "qualityHints": "rich detail, painterly finish, concept-art readability",
+    "recommendedNegativePrompts": [
+      "flat lighting",
+      "low detail",
+      "modern objects",
+      "text watermark"
+    ]
+  },
+  "architectural-visualization": {
+    "styleText": "architectural visualization, realistic materials, clean geometry",
+    "cameraHints": "ultra-wide architectural framing, straight vertical lines",
+    "lightingHints": "natural daylight, realistic interior bounce light",
+    "qualityHints": "photoreal surfaces, crisp edges, presentation-ready render",
+    "recommendedNegativePrompts": [
+      "warped perspective",
+      "people blocking view",
+      "noisy textures",
+      "clutter"
+    ]
+  },
+  "food-photography": {
+    "styleText": "food photography, appetizing commercial styling",
+    "cameraHints": "close-up composition, table-level framing",
+    "lightingHints": "soft directional window light, appetizing highlights",
+    "qualityHints": "rich texture detail, fresh appearance, cookbook polish",
+    "recommendedNegativePrompts": [
+      "burnt food",
+      "messy plating",
+      "plastic texture",
+      "muted colors"
+    ]
+  },
+  "neon-noir": {
+    "styleText": "neon noir, moody cyberpunk atmosphere, reflective surfaces",
+    "cameraHints": "cinematic street-level framing, dramatic perspective",
+    "lightingHints": "neon signage, rainy reflections, high-contrast glow",
+    "qualityHints": "moody detail, crisp highlights, cinematic depth",
+    "recommendedNegativePrompts": [
+      "flat lighting",
+      "washed out colors",
+      "blurry edges",
+      "text watermark"
+    ]
+  },
+  "watercolor-illustration": {
+    "styleText": "watercolor illustration, soft washes, hand-painted texture",
+    "cameraHints": "gentle composition, artistic balance",
+    "lightingHints": "diffused soft light, luminous paper texture",
+    "qualityHints": "fluid brush detail, delicate gradients, gallery finish",
+    "recommendedNegativePrompts": [
+      "harsh edges",
+      "pixel noise",
+      "overly sharp detail",
+      "text overlay"
+    ]
+  },
+  "minimalist-line-art": {
+    "styleText": "minimalist line art, clean outlines, modern simplicity",
+    "cameraHints": "simple centered framing, lots of negative space",
+    "lightingHints": "soft even lighting, uncluttered presentation",
+    "qualityHints": "crisp line work, elegant simplicity, design-forward",
+    "recommendedNegativePrompts": [
+      "busy background",
+      "heavy shading",
+      "messy sketch lines",
+      "clutter"
+    ]
+  },
+  "3d-render": {
+    "styleText": "high-end 3D render, polished surfaces, studio presentation",
+    "cameraHints": "clean product-style angle, depth-focused framing",
+    "lightingHints": "studio key light, realistic reflections, soft shadows",
+    "qualityHints": "ray-traced detail, premium finish, accurate materials",
+    "recommendedNegativePrompts": [
+      "low poly artifacts",
+      "blurry render",
+      "ugly seams",
+      "flat shading"
+    ]
+  },
+  "vintage-film": {
+    "styleText": "vintage film still, nostalgic grain, analog character",
+    "cameraHints": "classic framing, slight composition asymmetry",
+    "lightingHints": "warm practical light, soft contrast, film grain",
+    "qualityHints": "cinematic nostalgia, subtle grain, analog texture",
+    "recommendedNegativePrompts": [
+      "modern digital look",
+      "oversharpened edges",
+      "plastic texture",
+      "text watermark"
+    ]
+  },
+  "stickman-handmade": {
+    "styleText": "handmade stickman sketch, childlike doodle, marker-and-paper feel",
+    "cameraHints": "simple hand-drawn framing, playful composition",
+    "lightingHints": "flat notebook lighting, scanned sketch aesthetic",
+    "qualityHints": "visible pencil texture, rough handmade charm, clean doodle clarity",
+    "recommendedNegativePrompts": [
+      "realistic anatomy",
+      "photo detail",
+      "complex background",
+      "digital polish"
+    ]
+  }
+}

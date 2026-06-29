@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Automation Studio</title>
+    <style>
+      :root {
+        --bg: #f8f9fa;
+        --paper: #ffffff;
+        --ink: #202124;
+        --sub: #5f6368;
+        --line: #dadce0;
+        --accent: #1a73e8;
+        --accent-2: #1558b0;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(800px 500px at 15% -10%, #d2efe9 0%, transparent 60%),
+          radial-gradient(700px 450px at 95% 0%, #f5ebd5 0%, transparent 60%),
+          var(--bg);
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 32px auto;
+        padding: 0 16px 40px;
+      }
+
+      .card {
+        background: var(--paper);
+        border: 1px solid #eef0f2;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 30px rgba(60, 64, 67, 0.12);
+      }
+
+      h1 {
+        margin: 4px 0 12px;
+        font-size: 28px;
+      }
+
+      p.sub {
+        margin-top: 0;
+        color: var(--sub);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 11px 13px;
+        font-size: 14px;
+        background: #fff;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus,
+      button:focus {
+        outline: none;
+        border-color: rgba(26, 115, 232, 0.55);
+        box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.12);
+      }
+
+      textarea {
+        min-height: 220px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        background: var(--accent);
+        cursor: pointer;
+      }
+
+      button:hover { background: var(--accent-2); }
+      button[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+      .muted-btn {
+        background: #374151;
+      }
+
+      .small-btn {
+        background: #1f2937;
+        padding: 8px 12px;
+        font-size: 12px;
+        border-radius: 10px;
+      }
+
+      .small-btn:hover {
+        background: #111827;
+      }
+
+      .status {
+        margin-top: 14px;
+        border: 1px dashed var(--line);
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 13px;
+        color: var(--sub);
+        white-space: pre-wrap;
+      }
+
+      .result {
+        margin-top: 14px;
+        padding: 12px;
+        border-radius: 10px;
+        background: #eefcf8;
+        border: 1px solid #b8e4dc;
+      }
+
+      .result a {
+        color: #0b5f59;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .full,
+      .script-model,
+      .script-editor {
+        grid-column: 1 / -1;
+      }
+
+      .field-help {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--sub);
+      }
+
+      .combo {
+        position: relative;
+      }
+
+      .combo-button {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 12px 16px;
+        background: #fff;
+        text-align: left;
+        color: var(--ink);
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(60, 64, 67, 0.08);
+      }
+
+      .combo-panel {
+        position: absolute;
+        z-index: 5;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        box-shadow: 0 16px 40px rgba(60, 64, 67, 0.18);
+        padding: 12px;
+        display: none;
+      }
+
+      .combo-panel.open {
+        display: block;
+      }
+
+      .combo-search {
+        width: 100%;
+        margin-bottom: 10px;
+        border-radius: 999px;
+        border-color: #dfe1e5;
+        padding: 12px 16px;
+      }
+
+      .combo-meta {
+        font-size: 12px;
+        color: var(--sub);
+        margin: 4px 0 10px;
+      }
+
+      .combo-list {
+        max-height: 300px;
+        overflow: auto;
+        border: 1px solid #eceff1;
+        border-radius: 16px;
+      }
+
+      .combo-option {
+        width: 100%;
+        border: 0;
+        border-bottom: 1px solid #edf0ea;
+        background: #fff;
+        color: #202124;
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .combo-option:last-child {
+        border-bottom: 0;
+      }
+
+      .combo-option:hover,
+      .combo-option.selected {
+        background: #e8f0fe;
+      }
+
+      .script-toolbar {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+
+      .audio-tools {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+
+      @media (max-width: 820px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>Video Automation Studio</h1>
+        <p class="sub">Generate script, upload your voice audio, and produce a complete video from one screen.</p>
+
+        <div class="grid">
+          <div>
+            <label for="topic">Video Topic</label>
+            <input id="topic" placeholder="Example: How to automate shorts with AI" />
+          </div>
+
+          <div>
+            <label for="durationSec">Duration (seconds)</label>
+            <input id="durationSec" type="number" value="60" min="20" max="300" />
+          </div>
+
+          <div class="full">
+            <label for="audience">Target Audience</label>
+            <div class="combo" id="audienceCombo">
+              <button type="button" id="audienceButton" class="combo-button">Search target audience</button>
+              <div id="audiencePanel" class="combo-panel" aria-hidden="true">
+                <input id="audienceSearch" class="combo-search" placeholder="Search audiences..." />
+                <div id="audienceMeta" class="combo-meta"></div>
+                <div id="audienceList" class="combo-list"></div>
+              </div>
+              <input id="audience" type="hidden" />
+            </div>
+            <div class="field-help">Click to open all audiences. Type in the search box to filter immediately.</div>
+          </div>
+
+          <div class="script-model">
+            <label for="scriptModel">Script Model</label>
+            <select id="scriptModel"></select>
+            <div id="scriptModelHelp" class="field-help">Select a model. Estimate updates from duration and topic complexity.</div>
+            <div id="scriptModelCostTier" class="field-help"></div>
+            <label for="customModelId" style="margin-top:10px;">Custom Model ID (Optional)</label>
+            <input id="customModelId" placeholder="Example: anthropic/claude-3.5-sonnet or google/gemini-2.0-flash-001" />
+            <div class="field-help">Use this to run any supported model ID not listed in the dropdown. When set, this value overrides the dropdown model.</div>
+          </div>
+
+          <div class="script-editor">
+            <label for="scriptText">Script (Read, Edit, Copy)</label>
+            <textarea id="scriptText" placeholder="Click Generate Script, then review and edit here before generating your final video."></textarea>
+            <div class="script-toolbar">
+              <button type="button" id="copyScriptBtn" class="small-btn">Copy Script</button>
+            </div>
+            <div class="field-help">The generated script stays visible here. You can edit it before building the video.</div>
+          </div>
+
+          <div>
+            <label for="preset">Image Preset</label>
+            <select id="preset">
+              <option value="cinematic">cinematic</option>
+              <option value="neon-noir">neon-noir</option>
+              <option value="watercolor-illustration">watercolor-illustration</option>
+              <option value="minimalist-line-art">minimalist-line-art</option>
+              <option value="3d-render">3d-render</option>
+              <option value="vintage-film">vintage-film</option>
+              <option value="anime">anime</option>
+              <option value="stickman-handmade">stickman-handmade</option>
+              <option value="product-shot">product-shot</option>
+              <option value="food-photography">food-photography</option>
+              <option value="realistic-portrait">realistic-portrait</option>
+              <option value="fashion-editorial">fashion-editorial</option>
+              <option value="fantasy-concept-art">fantasy-concept-art</option>
+              <option value="architectural-visualization">architectural-visualization</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="audio">Upload Audio (mp3/wav/m4a)</label>
+            <input id="audio" type="file" accept="audio/*" />
+            <label for="micDevice" style="margin-top:10px;">Record from microphone</label>
+            <select id="micDevice">
+              <option value="">Default microphone</option>
+            </select>
+            <div class="audio-tools">
+              <button type="button" id="recordAudioBtn" class="small-btn">Start Recording</button>
+              <button type="button" id="clearRecordedBtn" class="small-btn" disabled>Clear Recording</button>
+            </div>
+            <audio id="recordedPreview" controls style="display:none; width:100%; margin-top:8px;"></audio>
+            <div id="recordingMeta" class="field-help">No recording yet. You can upload a file or record directly from a connected mic.</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="generateScriptBtn" class="muted-btn">Generate Script</button>
+          <button id="generateVideoBtn">Generate Full Video</button>
+        </div>
+
+        <div id="status" class="status">Ready.</div>
+        <div id="result" class="result" style="display:none;"></div>
+      </div>
+    </div>
+
+    <script>
+      const statusEl = document.getElementById('status');
+      const resultEl = document.getElementById('result');
+      const topicEl = document.getElementById('topic');
+      const durationEl = document.getElementById('durationSec');
+      const audienceButtonEl = document.getElementById('audienceButton');
+      const audiencePanelEl = document.getElementById('audiencePanel');
+      const audienceSearchEl = document.getElementById('audienceSearch');
+      const audienceMetaEl = document.getElementById('audienceMeta');
+      const audienceListEl = document.getElementById('audienceList');
+      const audienceEl = document.getElementById('audience');
+      const scriptModelEl = document.getElementById('scriptModel');
+      const scriptModelHelpEl = document.getElementById('scriptModelHelp');
+      const scriptModelCostTierEl = document.getElementById('scriptModelCostTier');
+      const customModelIdEl = document.getElementById('customModelId');
+      const scriptTextEl = document.getElementById('scriptText');
+      const copyScriptBtn = document.getElementById('copyScriptBtn');
+      const presetEl = document.getElementById('preset');
+      const audioEl = document.getElementById('audio');
+      const micDeviceEl = document.getElementById('micDevice');
+      const recordAudioBtn = document.getElementById('recordAudioBtn');
+      const clearRecordedBtn = document.getElementById('clearRecordedBtn');
+      const recordedPreviewEl = document.getElementById('recordedPreview');
+      const recordingMetaEl = document.getElementById('recordingMeta');
+      const scriptBtn = document.getElementById('generateScriptBtn');
+      const videoBtn = document.getElementById('generateVideoBtn');
+
+      let mediaRecorder = null;
+      let mediaStream = null;
+      let recordedChunks = [];
+      let recordedAudioBlob = null;
+      let recordedPreviewUrl = null;
+
+      const scriptModelCatalog = [
+        { key: 'auto', provider: 'auto', model: '', label: 'Auto (best available)', tier: 'medium' },
+        { key: 'claude-3-5-haiku-latest', provider: 'anthropic', model: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku', tier: 'low' },
+        { key: 'claude-3-5-sonnet-latest', provider: 'anthropic', model: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet', tier: 'high' },
+        { key: 'claude-3-opus-latest', provider: 'anthropic', model: 'claude-3-opus-latest', label: 'Claude 3 Opus', tier: 'very high' },
+        { key: 'claude-3-haiku-20240307', provider: 'anthropic', model: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku', tier: 'very low' },
+        { key: 'gpt-4.1-nano', provider: 'openai', model: 'gpt-4.1-nano', label: 'GPT-4.1 Nano', tier: 'very low' },
+        { key: 'gpt-4.1-mini', provider: 'openai', model: 'gpt-4.1-mini', label: 'GPT-4.1 Mini', tier: 'low' },
+        { key: 'gpt-4.1', provider: 'openai', model: 'gpt-4.1', label: 'GPT-4.1', tier: 'high' },
+        { key: 'gpt-4o-mini', provider: 'openai', model: 'gpt-4o-mini', label: 'GPT-4o Mini', tier: 'low' },
+        { key: 'gpt-4o', provider: 'openai', model: 'gpt-4o', label: 'GPT-4o', tier: 'high' },
+        { key: 'gpt-4-turbo', provider: 'openai', model: 'gpt-4-turbo', label: 'GPT-4 Turbo', tier: 'medium' },
+        { key: 'gpt-3.5-turbo', provider: 'openai', model: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', tier: 'very low' },
+        { key: 'o1-mini', provider: 'openai', model: 'o1-mini', label: 'o1-mini', tier: 'high' },
+        { key: 'o1', provider: 'openai', model: 'o1', label: 'o1', tier: 'very high' },
+        { key: 'o3-mini', provider: 'openai', model: 'o3-mini', label: 'o3-mini', tier: 'medium' },
+        { key: 'google-gemini-2.0-flash-001', provider: 'openrouter', model: 'google/gemini-2.0-flash-001', label: 'Gemini 2.0 Flash', tier: 'very low' },
+        { key: 'google-gemini-2.0-pro-exp-02-05', provider: 'openrouter', model: 'google/gemini-2.0-pro-exp-02-05', label: 'Gemini 2.0 Pro Exp', tier: 'medium' },
+        { key: 'google-gemini-1.5-flash', provider: 'openrouter', model: 'google/gemini-1.5-flash', label: 'Gemini 1.5 Flash', tier: 'very low' },
+        { key: 'google-gemini-1.5-pro', provider: 'openrouter', model: 'google/gemini-1.5-pro', label: 'Gemini 1.5 Pro', tier: 'medium' },
+        { key: 'meta-llama-3.1-8b-instruct', provider: 'openrouter', model: 'meta-llama/llama-3.1-8b-instruct', label: 'Llama 3.1 8B Instruct', tier: 'very low' },
+        { key: 'meta-llama-3.1-70b-instruct', provider: 'openrouter', model: 'meta-llama/llama-3.1-70b-instruct', label: 'Llama 3.1 70B Instruct', tier: 'low' },
+        { key: 'mistralai-mistral-small', provider: 'openrouter', model: 'mistralai/mistral-small', label: 'Mistral Small', tier: 'very low' },
+        { key: 'mistralai-mistral-large', provider: 'openrouter', model: 'mistralai/mistral-large', label: 'Mistral Large', tier: 'medium' },
+        { key: 'deepseek-chat', provider: 'openrouter', model: 'deepseek/deepseek-chat', label: 'DeepSeek Chat', tier: 'very low' },
+        { key: 'x-ai-grok-beta', provider: 'openrouter', model: 'x-ai/grok-beta', label: 'Grok Beta', tier: 'medium' },
+        { key: 'qwen-qwen-2-5-72b-instruct', provider: 'openrouter', model: 'qwen/qwen-2.5-72b-instruct', label: 'Qwen 2.5 72B Instruct', tier: 'low' },
+      ];
+
+      const tierMultiplier = {
+        'very low': 0.85,
+        low: 1.0,
+        medium: 1.2,
+        high: 1.45,
+        'very high': 1.8,
+      };
+
+      const audienceOptions = [
+        'Beginners learning the topic for the first time',
+        'Busy creators who want faster workflows',
+        'Small business owners building content',
+        'Solo founders and indie hackers',
+        'Students looking for practical examples',
+        'Coaches and consultants sharing expertise',
+        'Marketers running social campaigns',
+        'YouTube creators making faceless videos',
+        'Short-form video creators on reels and shorts',
+        'Teachers and course creators',
+        'Designers and visual artists',
+        'Content strategists and social media managers',
+        'E-commerce brands building product content',
+        'Real estate professionals promoting listings',
+        'Fitness coaches sharing transformation tips',
+        'Developers and technical educators',
+        'Podcasters repurposing episodes into video',
+        'News and commentary channels',
+        'Community builders and newsletter writers',
+        'General viewers interested in useful automation',
+        'Leisure audience looking for relaxed content',
+        'Scrollers on short-form apps',
+        'Funtaintainment viewers',
+        'Entertainment audience',
+        'Lifestyle and leisure creators',
+        'Casual mobile viewers',
+        'Trend watchers and viral content fans',
+        'Comedy and meme audiences',
+        'Storytime creators and fans',
+        'Motivation and self-improvement viewers',
+        'How-to and tutorial seekers',
+        'AI-curious beginners',
+        'Digital marketing learners',
+        'Online course buyers',
+        'Creator economy followers'
+      ];
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      function setButtonsDisabled(disabled) {
+        scriptBtn.disabled = disabled;
+        videoBtn.disabled = disabled;
+      }
+
+      function supportsAudioRecording() {
+        return Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+      }
+
+      function getPreferredAudioMimeType() {
+        const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
+        for (const mimeType of candidates) {
+          if (MediaRecorder.isTypeSupported(mimeType)) {
+            return mimeType;
+          }
+        }
+        return '';
+      }
+
+      async function populateMicDevices() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+          return;
+        }
+
+        const previousValue = micDeviceEl.value;
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputs = devices.filter((device) => device.kind === 'audioinput');
+
+        micDeviceEl.innerHTML = '';
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Default microphone';
+        micDeviceEl.appendChild(defaultOption);
+
+        audioInputs.forEach((device, index) => {
+          const option = document.createElement('option');
+          option.value = device.deviceId;
+          option.textContent = device.label || `Microphone ${index + 1}`;
+          micDeviceEl.appendChild(option);
+        });
+
+        if (previousValue && audioInputs.some((device) => device.deviceId === previousValue)) {
+          micDeviceEl.value = previousValue;
+        }
+      }
+
+      function releaseRecordingStream() {
+        if (mediaStream) {
+          mediaStream.getTracks().forEach((track) => track.stop());
+          mediaStream = null;
+        }
+      }
+
+      function clearRecordedAudio() {
+        recordedAudioBlob = null;
+        recordedChunks = [];
+        clearRecordedBtn.disabled = true;
+        recordingMetaEl.textContent = 'No recording yet. You can upload a file or record directly from a connected mic.';
+        if (recordedPreviewUrl) {
+          URL.revokeObjectURL(recordedPreviewUrl);
+          recordedPreviewUrl = null;
+        }
+        recordedPreviewEl.removeAttribute('src');
+        recordedPreviewEl.style.display = 'none';
+      }
+
+      async function startRecording() {
+        if (!supportsAudioRecording()) {
+          setStatus('Audio recording is not supported in this browser. Please upload an audio file instead.');
+          return;
+        }
+
+        try {
+          const selectedDeviceId = micDeviceEl.value;
+          const constraints = selectedDeviceId
+            ? { audio: { deviceId: { exact: selectedDeviceId } } }
+            : { audio: true };
+
+          mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+          await populateMicDevices();
+
+          const preferredMimeType = getPreferredAudioMimeType();
+          mediaRecorder = preferredMimeType
+            ? new MediaRecorder(mediaStream, { mimeType: preferredMimeType })
+            : new MediaRecorder(mediaStream);
+
+          recordedChunks = [];
+          mediaRecorder.addEventListener('dataavailable', (event) => {
+            if (event.data && event.data.size > 0) {
+              recordedChunks.push(event.data);
+            }
+          });
+
+          mediaRecorder.addEventListener('stop', () => {
+            const mimeType = mediaRecorder.mimeType || 'audio/webm';
+            recordedAudioBlob = new Blob(recordedChunks, { type: mimeType });
+            clearRecordedBtn.disabled = !recordedAudioBlob;
+
+            if (recordedPreviewUrl) {
+              URL.revokeObjectURL(recordedPreviewUrl);
+            }
+            recordedPreviewUrl = URL.createObjectURL(recordedAudioBlob);
+            recordedPreviewEl.src = recordedPreviewUrl;
+            recordedPreviewEl.style.display = 'block';
+
+            const seconds = Math.max(1, Math.round(recordedAudioBlob.size / 16000));
+            recordingMetaEl.textContent = `Recorded audio ready (~${seconds}s, ${(recordedAudioBlob.size / 1024).toFixed(0)} KB). This recording will be used for video generation.`;
+            recordAudioBtn.textContent = 'Start Recording';
+            releaseRecordingStream();
+            setStatus('Recording saved. You can preview it and generate the full video.');
+          });
+
+          mediaRecorder.start();
+          recordAudioBtn.textContent = 'Stop Recording';
+          recordingMetaEl.textContent = 'Recording in progress... speak into your selected microphone.';
+          setStatus('Recording started. Click Stop Recording when done.');
+        } catch (error) {
+          releaseRecordingStream();
+          setStatus(`Could not start microphone recording: ${error.message}`);
+        }
+      }
+
+      function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+        }
+      }
+
+      function estimateBaseScriptTokens(durationSec, topic = '', audience = '') {
+        const safeDuration = Number.isFinite(durationSec) ? Math.max(20, durationSec) : 60;
+        const estimatedWords = (safeDuration / 60) * 150;
+        const outputTokens = Math.ceil(estimatedWords * 1.45);
+        const topicComplexityBoost = Math.min(220, Math.ceil(String(topic).trim().length * 1.2));
+        const audienceComplexityBoost = Math.min(120, Math.ceil(String(audience).trim().length * 0.7));
+        const promptAndSystemTokens = 230 + topicComplexityBoost + audienceComplexityBoost;
+        const bufferTokens = 110;
+        return Math.ceil((promptAndSystemTokens + outputTokens + bufferTokens) / 10) * 10;
+      }
+
+      function estimateModelTokens(durationSec, topic, audience, modelTier) {
+        const base = estimateBaseScriptTokens(durationSec, topic, audience);
+        const multiplier = tierMultiplier[modelTier] || 1.0;
+        return Math.ceil((base * multiplier) / 10) * 10;
+      }
+
+      function selectedScriptModelConfig() {
+        const selectedKey = scriptModelEl.value || 'auto';
+        return scriptModelCatalog.find((item) => item.key === selectedKey)
+          || scriptModelCatalog[0];
+      }
+
+      function selectedRequestModel() {
+        const custom = customModelIdEl.value.trim();
+        if (custom) {
+          return {
+            provider: custom.includes('/') ? 'openrouter' : 'auto',
+            model: custom,
+            tier: 'custom',
+          };
+        }
+
+        const selected = selectedScriptModelConfig();
+        return {
+          provider: selected.provider,
+          model: selected.model,
+          tier: selected.tier,
+        };
+      }
+
+      function renderScriptModelOptions() {
+        const currentValue = scriptModelEl.value || 'auto';
+        const durationSec = Number(durationEl.value || 60);
+        const topic = topicEl.value || '';
+        const audience = audienceEl.value || '';
+
+        scriptModelEl.innerHTML = '';
+        scriptModelCatalog.forEach((item) => {
+          const estimatedTokens = estimateModelTokens(durationSec, topic, audience, item.tier);
+          const option = document.createElement('option');
+          option.value = item.key;
+          option.textContent = `${item.label} - ${item.tier} cost - ~${estimatedTokens} tokens`;
+          if (item.key === currentValue) {
+            option.selected = true;
+          }
+          scriptModelEl.appendChild(option);
+        });
+
+        const selected = selectedScriptModelConfig();
+        const selectedTokens = estimateModelTokens(durationSec, topic, audience, selected.tier);
+        scriptModelHelpEl.textContent = `Estimated usage for selected model: ~${selectedTokens} tokens (duration + topic + audience).`;
+        scriptModelCostTierEl.textContent = `Cost tier guide: very low, low, medium, high, very high. Selected tier: ${selected.tier}.`;
+      }
+
+      function closeAudiencePanel() {
+        audiencePanelEl.classList.remove('open');
+        audiencePanelEl.setAttribute('aria-hidden', 'true');
+      }
+
+      function openAudiencePanel() {
+        audiencePanelEl.classList.add('open');
+        audiencePanelEl.setAttribute('aria-hidden', 'false');
+        audienceSearchEl.focus();
+      }
+
+      function renderAudienceOptions(filterText = '') {
+        const currentValue = audienceEl.value;
+        const rawQuery = filterText.trim().toLowerCase();
+        const matches = rawQuery
+          ? audienceOptions.filter((option) => option.toLowerCase().includes(rawQuery))
+          : audienceOptions;
+
+        audienceMetaEl.textContent = rawQuery
+          ? `Showing ${matches.length} of ${audienceOptions.length} options for "${filterText.trim()}".`
+          : `Showing all ${audienceOptions.length} options. Type to narrow the list.`;
+
+        audienceListEl.innerHTML = '';
+
+        if (matches.length === 0) {
+          const empty = document.createElement('div');
+          empty.style.padding = '10px 12px';
+          empty.textContent = 'No matching audiences found.';
+          audienceListEl.appendChild(empty);
+          return;
+        }
+
+        matches.forEach((option) => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = `combo-option${option === currentValue ? ' selected' : ''}`;
+          item.textContent = option;
+          item.addEventListener('click', () => {
+            audienceEl.value = option;
+            audienceButtonEl.textContent = option;
+            audienceSearchEl.value = option;
+            renderAudienceOptions(audienceSearchEl.value);
+            renderScriptModelOptions();
+            closeAudiencePanel();
+          });
+          audienceListEl.appendChild(item);
+        });
+      }
+
+      renderAudienceOptions();
+      renderScriptModelOptions();
+
+      if (supportsAudioRecording()) {
+        populateMicDevices().catch(() => {
+          recordingMetaEl.textContent = 'Microphone list unavailable until permission is granted. You can still start recording to enable device labels.';
+        });
+      } else {
+        recordAudioBtn.disabled = true;
+        micDeviceEl.disabled = true;
+        recordingMetaEl.textContent = 'Audio recording is not supported in this browser. Upload audio instead.';
+      }
+
+      audienceSearchEl.addEventListener('input', () => {
+        renderAudienceOptions(audienceSearchEl.value);
+      });
+
+      audienceButtonEl.addEventListener('click', () => {
+        if (audiencePanelEl.classList.contains('open')) {
+          closeAudiencePanel();
+          return;
+        }
+
+        audienceSearchEl.value = audienceSearchEl.value || '';
+        renderAudienceOptions(audienceSearchEl.value);
+        openAudiencePanel();
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!document.getElementById('audienceCombo').contains(event.target)) {
+          closeAudiencePanel();
+        }
+      });
+
+      audienceSearchEl.addEventListener('focus', () => {
+        if (!audiencePanelEl.classList.contains('open')) {
+          openAudiencePanel();
+        }
+      });
+
+      scriptModelEl.addEventListener('change', renderScriptModelOptions);
+      durationEl.addEventListener('input', renderScriptModelOptions);
+      topicEl.addEventListener('input', renderScriptModelOptions);
+      customModelIdEl.addEventListener('input', () => {
+        const custom = customModelIdEl.value.trim();
+        if (custom) {
+          scriptModelCostTierEl.textContent = 'Custom model override enabled. Cost tier uses provider pricing for that exact model ID.';
+        } else {
+          renderScriptModelOptions();
+        }
+      });
+
+      recordAudioBtn.addEventListener('click', async () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          stopRecording();
+          return;
+        }
+
+        await startRecording();
+      });
+
+      clearRecordedBtn.addEventListener('click', () => {
+        clearRecordedAudio();
+        setStatus('Recorded audio cleared. You can record again or upload a file.');
+      });
+
+      audioEl.addEventListener('change', () => {
+        if (audioEl.files && audioEl.files.length > 0) {
+          clearRecordedAudio();
+          setStatus('Audio file selected from device storage.');
+        }
+      });
+
+      copyScriptBtn.addEventListener('click', async () => {
+        const text = scriptTextEl.value.trim();
+        if (!text) {
+          setStatus('There is no script to copy yet.');
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(text);
+          setStatus('Script copied to clipboard.');
+        } catch (_error) {
+          setStatus('Could not access clipboard. You can still copy manually from the script box.');
+        }
+      });
+
+      scriptBtn.addEventListener('click', async () => {
+        const topic = topicEl.value.trim();
+        const durationSec = Number(durationEl.value || 60);
+        const audience = audienceEl.value.trim();
+        const requestModel = selectedRequestModel();
+
+        if (!topic) {
+          setStatus('Please enter a topic first.');
+          return;
+        }
+
+        if (!audience) {
+          setStatus('Please choose a target audience first.');
+          return;
+        }
+
+        try {
+          setButtonsDisabled(true);
+          setStatus('Generating script...');
+
+          const response = await fetch('/api/studio/script', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              topic,
+              durationSec,
+              audience,
+              scriptProvider: requestModel.provider,
+              scriptModel: requestModel.model,
+            }),
+          });
+
+          const payload = await response.json();
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error?.message || 'Script generation failed.');
+          }
+
+          scriptTextEl.value = payload.data.scriptText || '';
+          const providerUsed = payload.data.provider || 'unknown';
+          const modelUsed = payload.data.model || 'unknown';
+          const fallback = payload.data.fallbackUsed ? ' (fallback)' : '';
+          setStatus(`Script generated with ${providerUsed} / ${modelUsed}${fallback}. You can edit and copy it below.`);
+        } catch (error) {
+          setStatus(`Error: ${error.message}`);
+        } finally {
+          setButtonsDisabled(false);
+        }
+      });
+
+      videoBtn.addEventListener('click', async () => {
+        const topic = topicEl.value.trim();
+        const durationSec = Number(durationEl.value || 60);
+        const audience = audienceEl.value.trim();
+        const requestModel = selectedRequestModel();
+        const preset = presetEl.value;
+        const uploadedAudioFile = audioEl.files && audioEl.files[0] ? audioEl.files[0] : null;
+        const audioFile = recordedAudioBlob
+          ? new File([recordedAudioBlob], `recorded_${Date.now()}.webm`, {
+            type: recordedAudioBlob.type || 'audio/webm',
+          })
+          : uploadedAudioFile;
+        const scriptText = scriptTextEl.value.trim();
+
+        if (!topic) {
+          setStatus('Please enter a topic first.');
+          return;
+        }
+
+        if (!audience) {
+          setStatus('Please choose a target audience first.');
+          return;
+        }
+
+        if (!scriptText) {
+          setStatus('Please generate or write a script in the script editor first.');
+          return;
+        }
+
+        if (!audioFile) {
+          setStatus('Please upload or record audio before generating the full video.');
+          return;
+        }
+
+        try {
+          setButtonsDisabled(true);
+          setStatus('Generating full video. This can take some time...');
+          resultEl.style.display = 'none';
+          resultEl.innerHTML = '';
+
+          const form = new FormData();
+          form.append('topic', topic);
+          form.append('durationSec', String(durationSec));
+          form.append('audience', audience);
+          form.append('scriptProvider', requestModel.provider);
+          form.append('scriptModel', requestModel.model);
+          form.append('preset', preset);
+          form.append('scriptText', scriptText);
+          form.append('audio', audioFile);
+
+          const response = await fetch('/api/studio/generate', {
+            method: 'POST',
+            body: form,
+          });
+
+          const payload = await response.json();
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error?.message || 'Video generation failed.');
+          }
+
+          const data = payload.data;
+          const lines = [];
+          lines.push(`<div><strong>Run ID:</strong> ${data.runId}</div>`);
+
+          if (data.videoUrl) {
+            lines.push(`<div><a href="${data.videoUrl}" target="_blank">Open Generated Video</a></div>`);
+          } else {
+            lines.push('<div>No video URL returned. Check server logs and summary file.</div>');
+          }
+
+          if (data.summaryUrl) {
+            lines.push(`<div><a href="${data.summaryUrl}" target="_blank">Open Run Summary JSON</a></div>`);
+          }
+
+          resultEl.innerHTML = lines.join('');
+          resultEl.style.display = 'block';
+          setStatus('Done. Your video has been generated.');
+        } catch (error) {
+          setStatus(`Error: ${error.message}\n\nTip: if you see ffmpeg error, install ffmpeg/ffprobe and try again.`);
+        } finally {
+          setButtonsDisabled(false);
+        }
+      });
+    </script>
+  </body>
+</html>

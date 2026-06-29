@@ -1,0 +1,104 @@
+name: Generate Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      subject:
+        description: Subject for the image
+        required: true
+        type: string
+      scene:
+        description: Scene for the image
+        required: true
+        type: string
+      preset:
+        description: Style preset
+        required: false
+        default: cinematic
+        type: string
+      size:
+        description: Image size
+        required: false
+        default: 1024x1024
+        type: string
+      dryRun:
+        description: Skip the provider call and only build the prompt
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Runs daily at 9:00 AM UTC.
+    - cron: '0 9 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    env:
+      FREEGEN_API_URL: ${{ secrets.FREEGEN_API_URL }}
+      FREEGEN_API_KEY: ${{ secrets.FREEGEN_API_KEY }}
+      SUBJECT: ${{ inputs.subject || 'daily creative concept' }}
+      SCENE: ${{ inputs.scene || 'sunrise studio environment' }}
+      PRESET: ${{ inputs.preset || 'cinematic' }}
+      SIZE: ${{ inputs.size || '1024x1024' }}
+      DRY_RUN: ${{ inputs.dryRun || false }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate Freegen configuration
+        if: env.DRY_RUN != 'true'
+        run: |
+          if [ -z "${FREEGEN_API_URL}" ]; then
+            echo 'FREEGEN_API_URL secret is required for live generation.' >&2
+            exit 1
+          fi
+
+      - name: Run generation
+        run: |
+          npm run generate -- \
+            --subject "${SUBJECT}" \
+            --scene "${SCENE}" \
+            --preset "${PRESET}" \
+            --size "${SIZE}" \
+            $([ "${DRY_RUN}" = "true" ] && echo '--dryRun')
+
+      - name: Upload metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: metadata
+          path: outputs/metadata/
+          if-no-files-found: warn
+
+      - name: Upload provider artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-artifacts
+          path: outputs/artifacts/
+          if-no-files-found: warn
+
+      - name: Upload generated images
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-images
+          path: outputs/images/
+          if-no-files-found: warn
+
+      - name: Add job summary
+        run: |
+          echo "## Generate Image Workflow" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Subject: ${SUBJECT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Scene: ${SCENE}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Preset: ${PRESET}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Dry run: ${DRY_RUN}" >> "$GITHUB_STEP_SUMMARY"

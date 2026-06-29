@@ -1,0 +1,20 @@
+{
+  "topic": "How to automate short-form educational videos",
+  "audience": "new creators building faceless content channels",
+  "tone": "confident, practical, clear",
+  "durationSec": 65,
+  "preset": "cinematic",
+  "visualStyle": "high-contrast cinematic realism, dramatic light, sharp subject focus",
+  "audioPath": "",
+  "transcriptPath": "",
+  "publish": false,
+  "publishTargets": "youtube,facebook,instagram,webhook",
+  "publishTitle": "How to automate shorts with AI",
+  "publishDescription": "Automated pipeline from script to publish-ready video.",
+  "publishTags": [
+    "automation",
+    "ai",
+    "shorts"
+  ],
+  "youtubePrivacyStatus": "private"
+}
