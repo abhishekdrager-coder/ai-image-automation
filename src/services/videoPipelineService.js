@@ -2,7 +2,8 @@ import path from 'node:path';
 import { copyFile, writeFile } from 'node:fs/promises';
 import { config } from '../config.js';
 import { createImageRun } from './imageGenerationService.js';
-import { generateNarrationScript, scriptToSegments } from './scriptGenerationService.js';
+import { scriptToSegments } from './scriptGenerationService.js';
+import { generateVideoScript } from './videoScriptService.js';
 import { resolveTranscript } from './transcriptionService.js';
 import { buildVideoFromTimeline, getMediaDurationSec } from './videoCompositionService.js';
 import { publishVideo } from './socialPublishService.js';
@@ -199,12 +200,16 @@ export async function runVideoPipeline(input = {}) {
       topic,
       durationSec: input.durationSec || 60,
       wordTarget: null,
+      provider: 'manual',
+      model: 'provided-text',
+      fallbackUsed: false,
     }
-    : generateNarrationScript({
+    : await generateVideoScript({
       topic,
       audience: input.audience,
-      tone: input.tone,
       durationSec: input.durationSec,
+      provider: input.scriptProvider,
+      model: input.scriptModel,
       callToAction: input.callToAction,
     });
 

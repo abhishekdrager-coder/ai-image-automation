@@ -4,7 +4,7 @@ import multer from 'multer';
 import { ValidationError } from '../errors.js';
 import { config } from '../config.js';
 import { ensureDir } from '../utils/fileUtils.js';
-import { generateNarrationScript } from '../services/scriptGenerationService.js';
+import { generateVideoScript } from '../services/videoScriptService.js';
 import { runVideoPipeline } from '../services/videoPipelineService.js';
 
 const router = Router();
@@ -44,7 +44,7 @@ router.get('/studio', (_req, res) => {
   res.sendFile(path.resolve('public/studio.html'));
 });
 
-router.post('/api/studio/script', (req, res, next) => {
+router.post('/api/studio/script', async (req, res, next) => {
   try {
     const topic = String(req.body?.topic || '').trim();
     if (!topic) {
@@ -56,12 +56,16 @@ router.post('/api/studio/script', (req, res, next) => {
       throw new ValidationError('audience is required.');
     }
 
+    const scriptProvider = String(req.body?.scriptProvider || 'auto').trim() || 'auto';
+    const scriptModel = String(req.body?.scriptModel || '').trim();
+
     const durationSec = Number(req.body?.durationSec || 60);
-    const script = generateNarrationScript({
+    const script = await generateVideoScript({
       topic,
-      durationSec: Number.isFinite(durationSec) ? durationSec : 60,
       audience,
-      tone: req.body?.tone,
+      durationSec: Number.isFinite(durationSec) ? durationSec : 60,
+      provider: scriptProvider,
+      model: scriptModel,
       callToAction: req.body?.callToAction,
     });
 
@@ -69,6 +73,9 @@ router.post('/api/studio/script', (req, res, next) => {
       ok: true,
       data: {
         scriptText: script.scriptText,
+        provider: script.provider,
+        model: script.model,
+        fallbackUsed: script.fallbackUsed,
       },
     });
   } catch (error) {
@@ -89,6 +96,8 @@ router.post('/api/studio/generate', upload.single('audio'), async (req, res, nex
     }
 
     const durationSec = Number(req.body?.durationSec || 60);
+    const scriptProvider = String(req.body?.scriptProvider || 'auto').trim() || 'auto';
+    const scriptModel = String(req.body?.scriptModel || '').trim();
     const freegenConfigured = Boolean(config.freegen.apiUrl)
       && !String(config.freegen.apiUrl).includes('api.example.com');
 
@@ -96,8 +105,9 @@ router.post('/api/studio/generate', upload.single('audio'), async (req, res, nex
       topic,
       audience,
       durationSec: Number.isFinite(durationSec) ? durationSec : 60,
+      scriptProvider,
+      scriptModel,
       preset: req.body?.preset || 'cinematic',
-      visualStyle: req.body?.visualStyle,
       scriptText: req.body?.scriptText || undefined,
       audioPath: req.file?.path || undefined,
       transcriptPath: req.body?.transcriptPath || undefined,
@@ -109,7 +119,6 @@ router.post('/api/studio/generate', upload.single('audio'), async (req, res, nex
       ok: true,
       data: {
         runId: result.runId,
-        scriptText: result.generatedScript?.scriptText || '',
         videoPath: result.videoPath,
         videoUrl: toOutputsUrl(result.videoPath),
         summaryPath: result.summaryPath,

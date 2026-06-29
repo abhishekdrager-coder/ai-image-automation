@@ -210,6 +210,7 @@
         border: 0;
         border-bottom: 1px solid #edf0ea;
         background: #fff;
+        color: #202124;
         padding: 10px 12px;
         text-align: left;
         font-size: 14px;
@@ -223,6 +224,10 @@
       .combo-option:hover,
       .combo-option.selected {
         background: #e8f0fe;
+      }
+
+      .script-model {
+        grid-column: 1 / -1;
       }
 
       @media (max-width: 820px) {
@@ -263,6 +268,16 @@
             <div class="field-help">Click to open all audiences. Type in the search box to filter immediately.</div>
           </div>
 
+          <div class="script-model">
+            <label for="scriptModel">Script Model</label>
+            <select id="scriptModel">
+              <option value="auto" selected>Auto (Claude or GPT)</option>
+              <option value="claude">Claude</option>
+              <option value="gpt">GPT</option>
+            </select>
+            <div class="field-help">Use Claude or GPT from your GitHub secrets or .env. The script is generated in the background and not shown here.</div>
+          </div>
+
           <div>
             <label for="preset">Image Preset</label>
             <select id="preset">
@@ -294,11 +309,6 @@
           Image prompts now use a shared visual bible automatically so all frames stay consistent.
         </p>
 
-        <div style="margin-top:12px;">
-          <label for="scriptText">Script (auto-filled when you click Generate Script)</label>
-          <textarea id="scriptText" placeholder="Click Generate Script first, then edit if needed."></textarea>
-        </div>
-
         <div class="actions">
           <button id="generateScriptBtn" class="muted-btn">Generate Script</button>
           <button id="generateVideoBtn">Generate Full Video</button>
@@ -312,7 +322,6 @@
     <script>
       const statusEl = document.getElementById('status');
       const resultEl = document.getElementById('result');
-      const scriptTextEl = document.getElementById('scriptText');
       const topicEl = document.getElementById('topic');
       const durationEl = document.getElementById('durationSec');
       const audienceButtonEl = document.getElementById('audienceButton');
@@ -321,10 +330,12 @@
       const audienceMetaEl = document.getElementById('audienceMeta');
       const audienceListEl = document.getElementById('audienceList');
       const audienceEl = document.getElementById('audience');
+      const scriptModelEl = document.getElementById('scriptModel');
       const presetEl = document.getElementById('preset');
       const audioEl = document.getElementById('audio');
       const scriptBtn = document.getElementById('generateScriptBtn');
       const videoBtn = document.getElementById('generateVideoBtn');
+      let generatedScriptText = '';
 
       const audienceOptions = [
         'Beginners learning the topic for the first time',
@@ -454,6 +465,7 @@
         const topic = topicEl.value.trim();
         const durationSec = Number(durationEl.value || 60);
         const audience = audienceEl.value.trim();
+        const scriptProvider = scriptModelEl.value;
 
         if (!topic) {
           setStatus('Please enter a topic first.');
@@ -472,7 +484,7 @@
           const response = await fetch('/api/studio/script', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ topic, durationSec, audience }),
+            body: JSON.stringify({ topic, durationSec, audience, scriptProvider }),
           });
 
           const payload = await response.json();
@@ -480,8 +492,8 @@
             throw new Error(payload.error?.message || 'Script generation failed.');
           }
 
-          scriptTextEl.value = payload.data.scriptText || '';
-          setStatus('Script generated. Review/edit it, then upload audio and click Generate Full Video.');
+          generatedScriptText = payload.data.scriptText || '';
+          setStatus('Script generated in the background and stored for the next video build.');
         } catch (error) {
           setStatus(`Error: ${error.message}`);
         } finally {
@@ -493,8 +505,8 @@
         const topic = topicEl.value.trim();
         const durationSec = Number(durationEl.value || 60);
         const audience = audienceEl.value.trim();
+        const scriptProvider = scriptModelEl.value;
         const preset = presetEl.value;
-        const scriptText = scriptTextEl.value.trim();
         const audioFile = audioEl.files && audioEl.files[0] ? audioEl.files[0] : null;
 
         if (!topic) {
@@ -522,8 +534,11 @@
           form.append('topic', topic);
           form.append('durationSec', String(durationSec));
           form.append('audience', audience);
+          form.append('scriptProvider', scriptProvider);
           form.append('preset', preset);
-          form.append('scriptText', scriptText);
+          if (generatedScriptText) {
+            form.append('scriptText', generatedScriptText);
+          }
           form.append('audio', audioFile);
 
           const response = await fetch('/api/studio/generate', {

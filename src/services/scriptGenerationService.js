@@ -29,14 +29,13 @@ export function generateNarrationScript(input = {}) {
     : 60;
 
   const audience = toSentence(input.audience || 'viewers');
-  const tone = toSentence(input.tone || 'clear, energetic, practical');
   const callToAction = toSentence(input.callToAction || 'Follow for the next part.');
 
   const scriptParagraphs = [
-    `If you're ${audience}, here's a simple way to turn ${topic} into a clean video without wasting time across too many tools.`,
-    `Start by writing one focused script, record your voice in a natural pace, and keep the message tight so every sentence moves the story forward.`,
-    `Then transcribe the audio, split it into short visual beats, and generate images that match each beat so the visuals stay locked to the narration.`,
-    `From there, assemble the images in order, keep the timing steady, and build a finished video that feels consistent from the first frame to the last.`,
+    `This video is for ${audience}, and the topic is ${topic}. In ${durationSec} seconds, I want to keep the message clear, useful, and easy to use on every social media platform.`,
+    `The first thing to know is the main idea. Say it simply, say it once, and keep the words natural so it sounds like a real person speaking.`,
+    `Then move into the practical part. Show the one or two steps that matter most, and keep each sentence short enough to be easy to follow while listening.`,
+    `End with the takeaway. Make the listener remember the one thing they should do next, and keep the closing sentence direct and confident.`,
     `${callToAction}`,
   ];
 
@@ -52,7 +51,6 @@ export function generateNarrationScript(input = {}) {
   return {
     topic,
     audience,
-    tone,
     durationSec,
     wordTarget,
     sections,

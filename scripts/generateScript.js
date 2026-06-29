@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { generateNarrationScript } from '../src/services/scriptGenerationService.js';
+import { generateVideoScript } from '../src/services/videoScriptService.js';
 import { ensureDir, slugify } from '../src/utils/fileUtils.js';
 import { getCompactTimestamp } from '../src/utils/timeUtils.js';
 
@@ -27,15 +27,16 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 if (!args.topic) {
-  console.error('Usage: npm run video:script -- --topic "Your topic" [--durationSec 60] [--audience "..."] [--tone "..."]');
+  console.error('Usage: npm run video:script -- --topic "Your topic" --audience "Your audience" [--durationSec 60] [--scriptProvider auto|claude|gpt]');
   process.exit(1);
 }
 
-const result = generateNarrationScript({
+const result = await generateVideoScript({
   topic: args.topic,
   audience: args.audience,
-  tone: args.tone,
   durationSec: Number.isFinite(Number(args.durationSec)) ? Number(args.durationSec) : 60,
+  provider: args.scriptProvider,
+  model: args.scriptModel,
   callToAction: args.callToAction,
 });
 
@@ -50,5 +51,8 @@ console.log(JSON.stringify({
     outputFile: outFile,
     script: result.scriptText,
     sections: result.sections,
+    provider: result.provider,
+    model: result.model,
+    fallbackUsed: result.fallbackUsed,
   },
 }, null, 2));

@@ -58,6 +58,18 @@ export const config = {
     maxRetries: toNumber(env.MAX_RETRIES, 3),
     baseDelayMs: toNumber(env.RETRY_BASE_DELAY_MS, 800),
   },
+  script: {
+    provider: env.SCRIPT_PROVIDER || 'auto',
+    model: env.SCRIPT_MODEL || '',
+    anthropicModel: env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest',
+    openaiModel: env.OPENAI_MODEL || 'gpt-4.1',
+    maxTokens: toNumber(env.SCRIPT_MAX_TOKENS, 900),
+    temperature: Number.isFinite(Number(env.SCRIPT_TEMPERATURE))
+      ? Number(env.SCRIPT_TEMPERATURE)
+      : 0.7,
+    anthropicApiKey: env.ANTHROPIC_API_KEY || '',
+    openaiApiKey: env.OPENAI_API_KEY || '',
+  },
   video: {
     width: toNumber(env.VIDEO_WIDTH, 1080),
     height: toNumber(env.VIDEO_HEIGHT, 1920),
