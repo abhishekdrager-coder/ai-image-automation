@@ -51,18 +51,25 @@ router.post('/api/studio/script', (req, res, next) => {
       throw new ValidationError('topic is required.');
     }
 
+    const audience = String(req.body?.audience || '').trim();
+    if (!audience) {
+      throw new ValidationError('audience is required.');
+    }
+
     const durationSec = Number(req.body?.durationSec || 60);
     const script = generateNarrationScript({
       topic,
       durationSec: Number.isFinite(durationSec) ? durationSec : 60,
-      audience: req.body?.audience,
+      audience,
       tone: req.body?.tone,
       callToAction: req.body?.callToAction,
     });
 
     res.json({
       ok: true,
-      data: script,
+      data: {
+        scriptText: script.scriptText,
+      },
     });
   } catch (error) {
     next(error);
@@ -76,12 +83,18 @@ router.post('/api/studio/generate', upload.single('audio'), async (req, res, nex
       throw new ValidationError('topic is required.');
     }
 
+    const audience = String(req.body?.audience || '').trim();
+    if (!audience) {
+      throw new ValidationError('audience is required.');
+    }
+
     const durationSec = Number(req.body?.durationSec || 60);
     const freegenConfigured = Boolean(config.freegen.apiUrl)
       && !String(config.freegen.apiUrl).includes('api.example.com');
 
     const result = await runVideoPipeline({
       topic,
+      audience,
       durationSec: Number.isFinite(durationSec) ? durationSec : 60,
       preset: req.body?.preset || 'cinematic',
       visualStyle: req.body?.visualStyle,

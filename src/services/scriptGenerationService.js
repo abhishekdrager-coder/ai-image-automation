@@ -28,41 +28,24 @@ export function generateNarrationScript(input = {}) {
     ? Math.max(30, Math.round(input.durationSec))
     : 60;
 
-  const audience = toSentence(input.audience || 'busy creators');
+  const audience = toSentence(input.audience || 'viewers');
   const tone = toSentence(input.tone || 'clear, energetic, practical');
   const callToAction = toSentence(input.callToAction || 'Follow for the next part.');
 
-  const storyBeats = [
-    `Hook: Imagine turning one idea about ${topic} into a polished short video in under an hour.`,
-    `Problem: Most creators lose time jumping between script writing, recording, transcription, image creation, and editing tools.`,
-    `Promise: This workflow keeps every step connected so your narration, visuals, and export stay aligned.`,
-    `Step 1: Start with a short script that explains ${topic} in plain language and one clear transformation.`,
-    `Step 2: Record your voice naturally, then transcribe and split your narration into visual beats.`,
-    `Step 3: Generate focused image prompts for each beat so every frame reinforces what you are saying.`,
-    `Step 4: Assemble timestamped images and voice-over into one vertical video ready for upload.`,
-    `Closing: The goal is not more content, it is consistent content that compounds every week.`,
-    `Call to action: ${callToAction}`,
+  const scriptParagraphs = [
+    `If you're ${audience}, here's a simple way to turn ${topic} into a clean video without wasting time across too many tools.`,
+    `Start by writing one focused script, record your voice in a natural pace, and keep the message tight so every sentence moves the story forward.`,
+    `Then transcribe the audio, split it into short visual beats, and generate images that match each beat so the visuals stay locked to the narration.`,
+    `From there, assemble the images in order, keep the timing steady, and build a finished video that feels consistent from the first frame to the last.`,
+    `${callToAction}`,
   ];
 
-  const chunkSize = 2;
-  const sections = splitInChunks(storyBeats, chunkSize).map((lines, idx) => ({
-    index: idx + 1,
-    heading: `Section ${idx + 1}`,
-    text: lines.join(' '),
+  const scriptText = scriptParagraphs.join('\n\n');
+  const sections = scriptParagraphs.map((text, index) => ({
+    index: index + 1,
+    heading: null,
+    text,
   }));
-
-  const scriptText = [
-    `Title: ${topic}`,
-    `Audience: ${audience}`,
-    `Tone: ${tone}`,
-    `Target Duration: ${durationSec} seconds`,
-    '',
-    ...sections.flatMap((section) => [
-      `${section.heading}:`,
-      section.text,
-      '',
-    ]),
-  ].join('\n').trim();
 
   const wordTarget = estimateWordTarget(durationSec);
 
