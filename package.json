@@ -10,6 +10,8 @@
     "test": "node --test",
     "generate": "node scripts/generateOnce.js",
     "generate:batch": "node scripts/batchGenerate.js",
+    "video:script": "node scripts/generateScript.js",
+    "video:build": "node scripts/createVideo.js",
     "smoke": "bash scripts/smokeTest.sh",
     "lint": "find src scripts tests -name \"*.js\" -print0 | xargs -0 -n1 node --check"
   },

@@ -48,6 +48,8 @@ export const config = {
     imageDir: resolvePath(env.OUTPUT_IMAGE_DIR || 'outputs/images'),
     metadataDir: resolvePath(env.OUTPUT_METADATA_DIR || 'outputs/metadata'),
     artifactDir: resolvePath('outputs/artifacts'),
+    videoDir: resolvePath(env.OUTPUT_VIDEO_DIR || 'outputs/videos'),
+    videoRunDir: resolvePath(env.OUTPUT_VIDEO_RUN_DIR || 'outputs/video-runs'),
   },
   prompt: {
     enablePromptLogging: toBoolean(env.ENABLE_PROMPT_LOGGING, true),
@@ -55,6 +57,30 @@ export const config = {
   retry: {
     maxRetries: toNumber(env.MAX_RETRIES, 3),
     baseDelayMs: toNumber(env.RETRY_BASE_DELAY_MS, 800),
+  },
+  video: {
+    width: toNumber(env.VIDEO_WIDTH, 1080),
+    height: toNumber(env.VIDEO_HEIGHT, 1920),
+    fps: toNumber(env.VIDEO_FPS, 30),
+    wordsPerMinute: toNumber(env.VIDEO_WORDS_PER_MINUTE, 135),
+  },
+  turboScribe: {
+    apiUrl: env.TURBOSCRIBE_API_URL || '',
+    apiKey: env.TURBOSCRIBE_API_KEY || '',
+  },
+  publish: {
+    enabledByDefault: toBoolean(env.AUTO_PUBLISH, false),
+    youtubeAccessToken: env.YOUTUBE_ACCESS_TOKEN || '',
+    youtubeChannelId: env.YOUTUBE_CHANNEL_ID || '',
+    facebookPageId: env.FACEBOOK_PAGE_ID || '',
+    facebookAccessToken: env.FACEBOOK_ACCESS_TOKEN || '',
+    instagramUserId: env.INSTAGRAM_USER_ID || '',
+    instagramAccessToken: env.INSTAGRAM_ACCESS_TOKEN || '',
+    instagramVideoUrl: env.INSTAGRAM_VIDEO_PUBLIC_URL || '',
+    webhookUrls: (env.SOCIAL_WEBHOOK_URLS || '')
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean),
   },
 };
 

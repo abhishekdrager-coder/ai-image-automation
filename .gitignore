@@ -5,3 +5,6 @@ outputs/**
 !outputs/images/.gitkeep
 !outputs/metadata/.gitkeep
 !outputs/artifacts/.gitkeep
+!outputs/videos/.gitkeep
+!outputs/video-runs/.gitkeep
+!outputs/video-scripts/.gitkeep
