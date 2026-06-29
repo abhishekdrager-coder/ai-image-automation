@@ -134,6 +134,12 @@
         grid-column: 1 / -1;
       }
 
+      .field-help {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--sub);
+      }
+
       @media (max-width: 820px) {
         .grid {
           grid-template-columns: 1fr;
@@ -160,29 +166,10 @@
 
           <div class="full">
             <label for="audience">Target Audience</label>
+            <input id="audienceSearch" placeholder="Search audience options..." />
             <select id="audience">
-              <option value="" selected disabled>Choose who this video is for</option>
-              <option value="beginners learning the topic for the first time">Beginners learning the topic for the first time</option>
-              <option value="busy creators who want faster workflows">Busy creators who want faster workflows</option>
-              <option value="small business owners building content">Small business owners building content</option>
-              <option value="solo founders and indie hackers">Solo founders and indie hackers</option>
-              <option value="students looking for practical examples">Students looking for practical examples</option>
-              <option value="coaches and consultants sharing expertise">Coaches and consultants sharing expertise</option>
-              <option value="marketers running social campaigns">Marketers running social campaigns</option>
-              <option value="youtube creators making faceless videos">YouTube creators making faceless videos</option>
-              <option value="short-form video creators on reels and shorts">Short-form video creators on reels and shorts</option>
-              <option value="teachers and course creators">Teachers and course creators</option>
-              <option value="designers and visual artists">Designers and visual artists</option>
-              <option value="content strategists and social media managers">Content strategists and social media managers</option>
-              <option value="e-commerce brands building product content">E-commerce brands building product content</option>
-              <option value="real estate professionals promoting listings">Real estate professionals promoting listings</option>
-              <option value="fitness coaches sharing transformation tips">Fitness coaches sharing transformation tips</option>
-              <option value="developers and technical educators">Developers and technical educators</option>
-              <option value="podcasters repurposing episodes into video">Podcasters repurposing episodes into video</option>
-              <option value="news and commentary channels">News and commentary channels</option>
-              <option value="community builders and newsletter writers">Community builders and newsletter writers</option>
-              <option value="general viewers interested in useful automation">General viewers interested in useful automation</option>
             </select>
+            <div class="field-help">Type in the search box to filter audience options, then select one.</div>
           </div>
 
           <div>
@@ -241,12 +228,88 @@
       const scriptTextEl = document.getElementById('scriptText');
       const topicEl = document.getElementById('topic');
       const durationEl = document.getElementById('durationSec');
+      const audienceSearchEl = document.getElementById('audienceSearch');
       const audienceEl = document.getElementById('audience');
       const presetEl = document.getElementById('preset');
       const visualStyleEl = document.getElementById('visualStyle');
       const audioEl = document.getElementById('audio');
       const scriptBtn = document.getElementById('generateScriptBtn');
       const videoBtn = document.getElementById('generateVideoBtn');
+
+      const audienceOptions = [
+        'Beginners learning the topic for the first time',
+        'Busy creators who want faster workflows',
+        'Small business owners building content',
+        'Solo founders and indie hackers',
+        'Students looking for practical examples',
+        'Coaches and consultants sharing expertise',
+        'Marketers running social campaigns',
+        'YouTube creators making faceless videos',
+        'Short-form video creators on reels and shorts',
+        'Teachers and course creators',
+        'Designers and visual artists',
+        'Content strategists and social media managers',
+        'E-commerce brands building product content',
+        'Real estate professionals promoting listings',
+        'Fitness coaches sharing transformation tips',
+        'Developers and technical educators',
+        'Podcasters repurposing episodes into video',
+        'News and commentary channels',
+        'Community builders and newsletter writers',
+        'General viewers interested in useful automation',
+        'Leisure audience looking for relaxed content',
+        'Scrollers on short-form apps',
+        'Funtaintainment viewers',
+        'Entertainment audience',
+        'Lifestyle and leisure creators',
+        'Casual mobile viewers',
+        'Trend watchers and viral content fans',
+        'Comedy and meme audiences',
+        'Storytime creators and fans',
+        'Motivation and self-improvement viewers',
+        'How-to and tutorial seekers',
+        'AI-curious beginners',
+        'Digital marketing learners',
+        'Online course buyers',
+        'Creator economy followers'
+      ];
+
+      function renderAudienceOptions(filterText = '') {
+        const query = filterText.trim().toLowerCase();
+        const currentValue = audienceEl.value;
+        const matches = audienceOptions.filter((option) => option.toLowerCase().includes(query));
+
+        audienceEl.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.disabled = true;
+        placeholder.textContent = matches.length ? 'Choose who this video is for' : 'No matches found';
+        if (!currentValue) {
+          placeholder.selected = true;
+        }
+        audienceEl.appendChild(placeholder);
+
+        matches.forEach((option) => {
+          const item = document.createElement('option');
+          item.value = option;
+          item.textContent = option;
+          if (option === currentValue) {
+            item.selected = true;
+          }
+          audienceEl.appendChild(item);
+        });
+
+        if (currentValue && !matches.includes(currentValue)) {
+          audienceEl.value = '';
+        }
+      }
+
+      renderAudienceOptions();
+
+      audienceSearchEl.addEventListener('input', () => {
+        renderAudienceOptions(audienceSearchEl.value);
+      });
 
       function setStatus(text) {
         statusEl.textContent = text;
