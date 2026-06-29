@@ -18,6 +18,19 @@ function estimateWordTarget(durationSec) {
   return Math.max(120, Math.round((durationSec / 60) * 145));
 }
 
+function normalizeTopic(topic) {
+  return topic.replace(/[.?!]+$/g, '').trim();
+}
+
+function buildReflectionQuestions(topic) {
+  const cleanTopic = normalizeTopic(topic);
+  return [
+    `What did I understand about ${cleanTopic} in that moment?`,
+    'What signal did I ignore because I was rushed or emotional?',
+    'What one decision will I make differently next time?',
+  ];
+}
+
 export function generateNarrationScript(input = {}) {
   const topic = toSentence(input.topic);
   if (!topic) {
@@ -29,14 +42,19 @@ export function generateNarrationScript(input = {}) {
     : 60;
 
   const audience = toSentence(input.audience || 'viewers');
-  const callToAction = toSentence(input.callToAction || 'Follow for the next part.');
+  const callToAction = toSentence(input.callToAction || 'Apply this in your next decision today.');
+  const cleanTopic = normalizeTopic(topic);
+  const questions = buildReflectionQuestions(topic);
+  const audienceIntro = audience.toLowerCase().includes('self improvement')
+    ? 'self-improvement'
+    : audience;
 
   const scriptParagraphs = [
-    `This video is for ${audience}, and the topic is ${topic}. In ${durationSec} seconds, I want to keep the message clear, useful, and easy to use on every social media platform.`,
-    `The first thing to know is the main idea. Say it simply, say it once, and keep the words natural so it sounds like a real person speaking.`,
-    `Then move into the practical part. Show the one or two steps that matter most, and keep each sentence short enough to be easy to follow while listening.`,
-    `End with the takeaway. Make the listener remember the one thing they should do next, and keep the closing sentence direct and confident.`,
-    `${callToAction}`,
+    `If you are focused on ${audienceIntro}, you have probably had a moment where ${cleanTopic} suddenly made perfect sense only after everything was over.`,
+    `That is the core lesson. In real time, pressure and emotion make things blurry. Later, the pattern looks obvious, and you feel like you should have known.`,
+    `The trap is turning that clarity into self-attack. You call yourself careless, when in reality you were making the best decision you could with limited information.`,
+    `Use that moment as data, not punishment. Ask yourself: ${questions[0]} ${questions[1]} ${questions[2]}`,
+    `Growth is not about always getting it right in the first attempt. Growth is learning faster after each replay. Keep the lesson complete in this one video and act on it now. ${callToAction}`,
   ];
 
   const scriptText = scriptParagraphs.join('\n\n');

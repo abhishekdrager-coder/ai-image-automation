@@ -10,14 +10,23 @@ function toSentence(value) {
 
 function buildScriptPrompt({ topic, audience, durationSec }) {
   return [
-    `Write a video script for all social media platforms of ${durationSec} seconds on the topic - ${topic} and my target audience is ${audience}.`,
-    'Write exactly what I should say on camera.',
-    'Do not write like a director.',
-    'Do not include scene directions, shot lists, section labels, titles, or commentary about visuals.',
-    'Do not say Hook, Scene, Beat, Step, Director, or Camera.',
-    'Use natural spoken language, short sentences, and a strong opening that sounds human.',
-    'Make the script useful, direct, and easy to say out loud.',
-    'Output only the spoken script text and nothing else.',
+    `Write a script for a ${durationSec}-second YouTube Shorts / Reels style video. Topic: ${topic}. Audience: ${audience}.`,
+    'Write exactly what I should say on camera in first-person spoken voice.',
+    'Use the style of a strong self-improvement short: reflective hook, clear meaning, practical takeaway, then motivating close.',
+    'Flow blueprint:',
+    '1) Open with a relatable question or moment of realization.',
+    '2) Explain the core idea in plain language.',
+    '3) Warn about the common mistake people make with this idea.',
+    '4) Give a growth-focused reframing with 2-3 practical self-reflection prompts.',
+    '5) End with a concise, empowering closing line.',
+    'Use short lines and natural pauses, but keep it as spoken script only.',
+    'Do not include labels such as Title, Hook, Step, Scene, Beat, or Call to Action headings.',
+    'Do not include camera directions, shot instructions, or markdown formatting.',
+    'The script must be complete in this one video. Do not defer key information to part 2 or next video.',
+    'Do not use phrases like next part, part 2, to be continued, or follow for more.',
+    'Fit high-quality information within the given duration without splitting the main idea across multiple parts.',
+    'Keep it emotionally intelligent, direct, and easy to speak out loud.',
+    'Output only the final spoken script text.',
   ].join(' ');
 }
 
@@ -27,6 +36,7 @@ function sanitizeScriptText(text) {
     .replace(/```/g, '')
     .replace(/^\s*(title|audience|tone|scene|hook|step|beat|director|camera|shot)\s*:\s*.*$/gim, '')
     .replace(/^\s*[-*•]+\s*/gm, '')
+    .replace(/\b(next part|part\s*2|part two|to be continued|follow for more)\b/gi, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
@@ -102,6 +112,37 @@ async function callOpenAI(prompt, modelName) {
   return sanitizeScriptText(text);
 }
 
+async function callOpenRouter(prompt, modelName) {
+  const response = await fetch(config.script.openrouterApiUrl || 'https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${config.script.openrouterApiKey}`,
+    },
+    body: JSON.stringify({
+      model: modelName,
+      temperature: config.script.temperature,
+      max_tokens: config.script.maxTokens,
+      messages: [
+        { role: 'user', content: prompt },
+      ],
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = payload?.error?.message || `OpenRouter request failed with status ${response.status}.`;
+    throw new ValidationError(message, { code: 'SCRIPT_MODEL_ERROR', details: payload });
+  }
+
+  const text = payload?.choices?.[0]?.message?.content?.trim();
+  if (!text) {
+    throw new ValidationError('OpenRouter response did not include script text.', { code: 'SCRIPT_MODEL_ERROR' });
+  }
+
+  return sanitizeScriptText(text);
+}
+
 function selectProvider(requestedProvider) {
   const normalized = toSentence(requestedProvider || config.script.provider || 'auto').toLowerCase();
   if (normalized === 'claude' || normalized === 'anthropic') {
@@ -109,6 +150,9 @@ function selectProvider(requestedProvider) {
   }
   if (normalized === 'gpt' || normalized === 'openai') {
     return 'openai';
+  }
+  if (normalized === 'openrouter') {
+    return 'openrouter';
   }
   return 'auto';
 }
@@ -127,6 +171,19 @@ function inferProviderFromModel(modelName) {
     return 'openai';
   }
 
+  if (
+    normalized.includes('gemini')
+    || normalized.includes('deepseek')
+    || normalized.includes('mistral')
+    || normalized.includes('llama')
+    || normalized.includes('grok')
+    || normalized.includes('qwen')
+    || normalized.includes('command-r')
+    || normalized.includes('reka')
+  ) {
+    return 'openrouter';
+  }
+
   return null;
 }
 
@@ -135,7 +192,13 @@ function selectModelName(provider, requestedModel) {
   if (explicit) {
     return explicit;
   }
-  return provider === 'anthropic' ? config.script.anthropicModel : config.script.openaiModel;
+  if (provider === 'anthropic') {
+    return config.script.anthropicModel;
+  }
+  if (provider === 'openrouter') {
+    return config.script.openrouterModel;
+  }
+  return config.script.openaiModel;
 }
 
 async function generateFromModel(input) {
@@ -178,6 +241,22 @@ async function generateFromModel(input) {
     };
   };
 
+  const tryOpenRouter = async () => {
+    if (!config.script.openrouterApiKey) {
+      throw new ValidationError('OPENROUTER_API_KEY is not configured.', { code: 'SCRIPT_MODEL_MISSING_KEY' });
+    }
+    const modelName = selectModelName('openrouter', input.model);
+    const scriptText = await callOpenRouter(prompt, modelName);
+    return {
+      scriptText,
+      provider: 'openrouter',
+      model: modelName,
+      fallbackUsed: false,
+      prompt,
+      sections: scriptToSegments(scriptText),
+    };
+  };
+
   if (finalProviderChoice === 'anthropic') {
     return tryAnthropic();
   }
@@ -186,12 +265,19 @@ async function generateFromModel(input) {
     return tryOpenAI();
   }
 
+  if (finalProviderChoice === 'openrouter') {
+    return tryOpenRouter();
+  }
+
   try {
     if (config.script.anthropicApiKey) {
       return await tryAnthropic();
     }
     if (config.script.openaiApiKey) {
       return await tryOpenAI();
+    }
+    if (config.script.openrouterApiKey) {
+      return await tryOpenRouter();
     }
   } catch (error) {
     // Fall through to local fallback below.

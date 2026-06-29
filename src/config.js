@@ -63,12 +63,15 @@ export const config = {
     model: env.SCRIPT_MODEL || '',
     anthropicModel: env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest',
     openaiModel: env.OPENAI_MODEL || 'gpt-4.1',
+    openrouterModel: env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-001',
     maxTokens: toNumber(env.SCRIPT_MAX_TOKENS, 900),
     temperature: Number.isFinite(Number(env.SCRIPT_TEMPERATURE))
       ? Number(env.SCRIPT_TEMPERATURE)
       : 0.7,
     anthropicApiKey: env.ANTHROPIC_API_KEY || '',
     openaiApiKey: env.OPENAI_API_KEY || '',
+    openrouterApiKey: env.OPENROUTER_API_KEY || '',
+    openrouterApiUrl: env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1/chat/completions',
   },
   video: {
     width: toNumber(env.VIDEO_WIDTH, 1080),
